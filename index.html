@@ -16,10 +16,235 @@
       text-align: center;
       min-height: 100vh;
       padding: 2rem 1rem;
+      overflow-x: hidden;
+      position: relative;
+    }
+    /* Glitch particles */
+    .glitch-particle {
+      position: fixed;
+      width: 4px;
+      height: 4px;
+      background: #00ffaa;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1000;
+      animation: float 3s infinite;
+      opacity: 0.6;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) translateX(0); opacity: 0.6; }
+      50% { transform: translateY(-20px) translateX(10px); opacity: 1; }
+    }
+    /* Game overlay */
+    .game-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(11, 11, 12, 0.95);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      backdrop-filter: blur(10px);
+    }
+    .game-overlay.active {
+      display: flex;
+    }
+    .game-container {
+      max-width: 600px;
+      padding: 2rem;
+      background: rgba(0, 255, 170, 0.1);
+      border: 2px solid #00ffaa;
+      border-radius: 16px;
+      position: relative;
+    }
+    .game-title {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(90deg, #00ffaa, #5500ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+    .game-item {
+      aspect-ratio: 1;
+      background: rgba(0, 255, 170, 0.1);
+      border: 2px solid rgba(0, 255, 170, 0.3);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .game-item:hover {
+      transform: scale(1.1);
+      border-color: #00ffaa;
+      box-shadow: 0 0 20px rgba(0, 255, 170, 0.5);
+    }
+    .game-item.found {
+      background: rgba(0, 255, 170, 0.3);
+      border-color: #00ffaa;
+      animation: foundPulse 0.5s;
+    }
+    .game-item.wrong {
+      animation: shake 0.5s;
+    }
+    @keyframes foundPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+    .game-score {
+      font-size: 1.5rem;
+      margin: 1rem 0;
+    }
+    .close-game {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(255, 85, 0, 0.8);
+      border: none;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+    .close-game:hover {
+      background: rgba(255, 85, 0, 1);
+      transform: rotate(90deg);
+    }
+    /* Glitch button */
+    .glitch-btn {
+      margin: 1rem;
+      padding: 0.5rem 1rem;
+      background: rgba(85, 0, 255, 0.3);
+      border: 2px solid #5500ff;
+      color: #00ffaa;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+    .glitch-btn:hover {
+      background: rgba(85, 0, 255, 0.5);
+      box-shadow: 0 0 20px rgba(85, 0, 255, 0.5);
+      transform: translateY(-2px);
+    }
+    /* Glitch effect on album art */
+    .album-art-wrapper {
+      position: relative;
+      display: inline-block;
+      margin: 2rem auto;
+    }
+    .album-art {
+      max-width: 100%;
+      width: 400px;
+      height: 400px;
+      object-fit: cover;
+      border-radius: 16px;
+      box-shadow: 0 0 60px rgba(0, 255, 170, 0.4), 0 0 120px rgba(85, 0, 255, 0.3);
+      display: block;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+    .album-art.glitch {
+      animation: glitch 0.3s infinite;
+    }
+    @keyframes glitch {
+      0% { transform: translate(0); filter: hue-rotate(0deg); }
+      20% { transform: translate(-2px, 2px); filter: hue-rotate(90deg); }
+      40% { transform: translate(-2px, -2px); filter: hue-rotate(180deg); }
+      60% { transform: translate(2px, 2px); filter: hue-rotate(270deg); }
+      80% { transform: translate(2px, -2px); filter: hue-rotate(360deg); }
+      100% { transform: translate(0); filter: hue-rotate(0deg); }
+    }
+    .album-art:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 80px rgba(0, 255, 170, 0.6), 0 0 160px rgba(85, 0, 255, 0.4);
+    }
+    .clickable-shit {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background: rgba(255, 0, 170, 0.6);
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 10;
+      animation: pulse 2s infinite;
+      border: 2px solid #ff00aa;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+    .clickable-shit:hover {
+      transform: scale(1.5);
+      box-shadow: 0 0 30px rgba(255, 0, 170, 1);
+    }
+    /* Visualizer mode selector */
+    .visualizer-modes {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin: 1rem 0;
+      flex-wrap: wrap;
+    }
+    .mode-btn {
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(0, 255, 170, 0.3);
+      color: #00ffaa;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+    }
+    .mode-btn:hover {
+      background: rgba(0, 255, 170, 0.2);
+      border-color: #00ffaa;
+    }
+    .mode-btn.active {
+      background: rgba(0, 255, 170, 0.3);
+      border-color: #00ffaa;
+      box-shadow: 0 0 10px rgba(0, 255, 170, 0.5);
+    }
+    /* Quality indicator */
+    .quality-indicator {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background: rgba(0, 255, 170, 0.2);
+      border: 1px solid #00ffaa;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      margin-left: 1rem;
+      color: #00ffaa;
     }
     .container {
       max-width: 900px;
       margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
     h1 {
       font-size: 2.5rem;
@@ -29,27 +254,13 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
       text-shadow: 0 0 30px rgba(0, 255, 170, 0.5);
+      position: relative;
     }
     h3 {
       font-size: 1.2rem;
       color: #aaa;
       margin-bottom: 2rem;
       font-weight: 300;
-    }
-    .album-art {
-      max-width: 100%;
-      width: 400px;
-      height: 400px;
-      object-fit: cover;
-      border-radius: 16px;
-      box-shadow: 0 0 60px rgba(0, 255, 170, 0.4), 0 0 120px rgba(85, 0, 255, 0.3);
-      margin: 2rem auto;
-      display: block;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .album-art:hover {
-      transform: scale(1.02);
-      box-shadow: 0 0 80px rgba(0, 255, 170, 0.6), 0 0 160px rgba(85, 0, 255, 0.4);
     }
     .visualizer-container {
       margin: 2rem auto;
@@ -67,6 +278,8 @@
       width: 100%;
       height: 100%;
       display: block;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
     }
     .player-container {
       margin: 2rem auto;
@@ -193,10 +406,24 @@
 </head>
 <body>
   <div class="container">
-    <h1>🎧 Lookin' for Sh!t</h1>
+    <h1>🎧 Lookin' for Sh!t <span class="quality-indicator">HQ Audio</span></h1>
     <h3>BillyGoat · Swamp-Hop / Glitch Bounce</h3>
 
-    <img src="goattinshit.png" alt="Album Art – BillyGoat Glitch" class="album-art" />
+    <div class="album-art-wrapper">
+      <img src="goattinshit.png" alt="Album Art – BillyGoat Glitch" class="album-art" id="albumArt" />
+      <div class="clickable-shit" id="clickableShit1" style="top: 20%; left: 15%;"></div>
+      <div class="clickable-shit" id="clickableShit2" style="top: 60%; right: 20%;"></div>
+      <div class="clickable-shit" id="clickableShit3" style="bottom: 25%; left: 30%;"></div>
+    </div>
+
+    <button class="glitch-btn" id="gameBtn">🎮 Find the Sh!t Game</button>
+
+    <div class="visualizer-modes">
+      <button class="mode-btn active" data-mode="bars">Bars</button>
+      <button class="mode-btn" data-mode="circle">Circle</button>
+      <button class="mode-btn" data-mode="waveform">Waveform</button>
+      <button class="mode-btn" data-mode="particles">Particles</button>
+    </div>
 
     <div class="visualizer-container">
       <canvas id="visualizer"></canvas>
@@ -231,6 +458,18 @@
     </audio>
   </div>
 
+  <!-- Game Overlay -->
+  <div class="game-overlay" id="gameOverlay">
+    <div class="game-container">
+      <button class="close-game" id="closeGame">×</button>
+      <h2 class="game-title">🎯 Find the Sh!t!</h2>
+      <p>Click on the hidden items before time runs out!</p>
+      <div class="game-score">Score: <span id="gameScore">0</span> | Time: <span id="gameTime">30</span>s</div>
+      <div class="game-grid" id="gameGrid"></div>
+      <button class="glitch-btn" id="restartGame" style="display: none;">Play Again</button>
+    </div>
+  </div>
+
   <script>
     const audio = document.getElementById('audioPlayer');
     const playPauseBtn = document.getElementById('playPauseBtn');
@@ -252,20 +491,36 @@
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Audio context and analyzer
+    // Audio context and analyzer - Enhanced quality
     let audioContext;
     let analyser;
     let dataArray;
     let source;
+    let gainNode;
+    let visualizerMode = 'bars';
+    let smoothingTimeConstant = 0.8; // Smoother visualization
 
     function initAudioContext() {
       if (!audioContext) {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        audioContext = new (window.AudioContext || window.webkitAudioContext)({
+          sampleRate: 48000 // Higher sample rate for better quality
+        });
+        
+        // Create gain node for better audio control
+        gainNode = audioContext.createGain();
+        gainNode.gain.value = 1.0;
+        
         analyser = audioContext.createAnalyser();
-        analyser.fftSize = 256;
+        analyser.fftSize = 2048; // Higher FFT size for better frequency resolution
+        analyser.smoothingTimeConstant = smoothingTimeConstant;
+        analyser.minDecibels = -90;
+        analyser.maxDecibels = -10;
+        
         source = audioContext.createMediaElementSource(audio);
-        source.connect(analyser);
+        source.connect(gainNode);
+        gainNode.connect(analyser);
         analyser.connect(audioContext.destination);
+        
         dataArray = new Uint8Array(analyser.frequencyBinCount);
       }
     }
@@ -330,22 +585,50 @@
 
     audio.addEventListener('timeupdate', updateProgress);
 
-    // Visualizer
+    // Visualizer modes
+    const modeButtons = document.querySelectorAll('.mode-btn');
+    modeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        modeButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        visualizerMode = btn.dataset.mode;
+      });
+    });
+
+    // Enhanced Visualizer with multiple modes
     function drawVisualizer() {
       requestAnimationFrame(drawVisualizer);
 
       if (!analyser) return;
 
-      analyser.getByteFrequencyData(dataArray);
-
-      ctx.fillStyle = 'rgba(11, 11, 12, 0.1)';
+      ctx.fillStyle = 'rgba(11, 11, 12, 0.15)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      const barWidth = canvas.width / dataArray.length * 2;
+      switch(visualizerMode) {
+        case 'bars':
+          drawBars();
+          break;
+        case 'circle':
+          drawCircle();
+          break;
+        case 'waveform':
+          drawWaveform();
+          break;
+        case 'particles':
+          drawParticles();
+          break;
+      }
+    }
+
+    function drawBars() {
+      analyser.getByteFrequencyData(dataArray);
+      const barCount = 128;
+      const barWidth = canvas.width / barCount;
       let x = 0;
 
-      for (let i = 0; i < dataArray.length; i++) {
-        const barHeight = (dataArray[i] / 255) * canvas.height * 0.8;
+      for (let i = 0; i < barCount; i++) {
+        const dataIndex = Math.floor((i / barCount) * dataArray.length);
+        const barHeight = (dataArray[dataIndex] / 255) * canvas.height * 0.9;
 
         const gradient = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - barHeight);
         gradient.addColorStop(0, '#00ffaa');
@@ -355,40 +638,268 @@
         ctx.fillStyle = gradient;
         ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
 
-        // Add glow effect
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 15;
         ctx.shadowColor = '#00ffaa';
         ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
         ctx.shadowBlur = 0;
 
         x += barWidth;
       }
+    }
 
-      // Draw waveform overlay
+    function drawCircle() {
+      analyser.getByteFrequencyData(dataArray);
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = Math.min(canvas.width, canvas.height) / 3;
+      const bars = 64;
+
+      ctx.save();
+      ctx.translate(centerX, centerY);
+
+      for (let i = 0; i < bars; i++) {
+        const angle = (i / bars) * Math.PI * 2;
+        const dataIndex = Math.floor((i / bars) * dataArray.length);
+        const barLength = (dataArray[dataIndex] / 255) * radius * 0.8;
+
+        ctx.save();
+        ctx.rotate(angle);
+        ctx.strokeStyle = `hsl(${(i / bars) * 360}, 100%, 60%)`;
+        ctx.lineWidth = 3;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = ctx.strokeStyle;
+        ctx.beginPath();
+        ctx.moveTo(radius, 0);
+        ctx.lineTo(radius + barLength, 0);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      ctx.restore();
+    }
+
+    function drawWaveform() {
       analyser.getByteTimeDomainData(dataArray);
       ctx.strokeStyle = '#00ffaa';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 3;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = '#00ffaa';
       ctx.beginPath();
+
       const sliceWidth = canvas.width / dataArray.length;
-      let waveformX = 0;
+      let x = 0;
 
       for (let i = 0; i < dataArray.length; i++) {
         const v = dataArray[i] / 128.0;
         const y = (v * canvas.height) / 2;
 
         if (i === 0) {
-          ctx.moveTo(waveformX, y);
+          ctx.moveTo(x, y);
         } else {
-          ctx.lineTo(waveformX, y);
+          ctx.lineTo(x, y);
         }
 
-        waveformX += sliceWidth;
+        x += sliceWidth;
       }
 
       ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+
+    function drawParticles() {
+      analyser.getByteFrequencyData(dataArray);
+      const particleCount = 200;
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+
+      for (let i = 0; i < particleCount; i++) {
+        const angle = (i / particleCount) * Math.PI * 2;
+        const dataIndex = Math.floor((i / particleCount) * dataArray.length);
+        const distance = (dataArray[dataIndex] / 255) * Math.min(canvas.width, canvas.height) / 2;
+        const x = centerX + Math.cos(angle) * distance;
+        const y = centerY + Math.sin(angle) * distance;
+
+        const gradient = ctx.createRadialGradient(x, y, 0, x, y, 5);
+        gradient.addColorStop(0, `hsl(${(i / particleCount) * 360}, 100%, 60%)`);
+        gradient.addColorStop(1, 'transparent');
+
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
 
     drawVisualizer();
+
+    // Interactive clickable elements on album art
+    let clickCount = 0;
+    const clickableShits = document.querySelectorAll('.clickable-shit');
+    clickableShits.forEach((shit, index) => {
+      shit.addEventListener('click', () => {
+        clickCount++;
+        shit.style.display = 'none';
+        createParticleExplosion(shit);
+        
+        // Glitch effect on album art
+        const albumArt = document.getElementById('albumArt');
+        albumArt.classList.add('glitch');
+        setTimeout(() => albumArt.classList.remove('glitch'), 300);
+        
+        if (clickCount === 3) {
+          setTimeout(() => {
+            alert('🎉 You found all the sh!t! The music quality just got better!');
+            clickCount = 0;
+            clickableShits.forEach(s => s.style.display = 'block');
+          }, 500);
+        }
+      });
+    });
+
+    function createParticleExplosion(element) {
+      const rect = element.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+
+      for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'glitch-particle';
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        particle.style.animationDelay = (i * 0.05) + 's';
+        document.body.appendChild(particle);
+
+        setTimeout(() => particle.remove(), 3000);
+      }
+    }
+
+    // Game functionality
+    const gameBtn = document.getElementById('gameBtn');
+    const gameOverlay = document.getElementById('gameOverlay');
+    const closeGame = document.getElementById('closeGame');
+    const gameGrid = document.getElementById('gameGrid');
+    const gameScore = document.getElementById('gameScore');
+    const gameTime = document.getElementById('gameTime');
+    const restartGame = document.getElementById('restartGame');
+
+    let gameScoreValue = 0;
+    let gameTimeLeft = 30;
+    let gameTimer;
+    let foundItems = [];
+    let gameActive = false;
+
+    const emojis = ['💩', '🎵', '🎧', '🔥', '⚡', '🌟', '💎', '🎮', '🎯', '🚀', '💫', '✨', '🎨', '🎪', '🎭', '🎬'];
+    const targetEmoji = '💩';
+
+    function startGame() {
+      gameActive = true;
+      gameScoreValue = 0;
+      gameTimeLeft = 30;
+      foundItems = [];
+      gameScore.textContent = gameScoreValue;
+      gameTime.textContent = gameTimeLeft;
+      gameGrid.innerHTML = '';
+      restartGame.style.display = 'none';
+
+      // Create grid
+      const items = [];
+      const targetCount = 3;
+      
+      const nonTargetEmojis = emojis.filter(e => e !== targetEmoji);
+      for (let i = 0; i < 16; i++) {
+        items.push(i < targetCount ? targetEmoji : nonTargetEmojis[Math.floor(Math.random() * nonTargetEmojis.length)]);
+      }
+      
+      // Shuffle
+      for (let i = items.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [items[i], items[j]] = [items[j], items[i]];
+      }
+
+      items.forEach((emoji, index) => {
+        const item = document.createElement('div');
+        item.className = 'game-item';
+        item.textContent = '?';
+        item.dataset.emoji = emoji;
+        item.dataset.index = index;
+        item.addEventListener('click', () => handleGameClick(item));
+        gameGrid.appendChild(item);
+      });
+
+      gameTimer = setInterval(() => {
+        gameTimeLeft--;
+        gameTime.textContent = gameTimeLeft;
+        
+        if (gameTimeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function handleGameClick(item) {
+      if (!gameActive || foundItems.includes(item.dataset.index)) return;
+
+      const emoji = item.dataset.emoji;
+      item.textContent = emoji;
+
+      if (emoji === targetEmoji) {
+        item.classList.add('found');
+        foundItems.push(item.dataset.index);
+        gameScoreValue += 10;
+        gameScore.textContent = gameScoreValue;
+        
+        if (foundItems.length === 3) {
+          gameScoreValue += gameTimeLeft * 5;
+          gameScore.textContent = gameScoreValue;
+          endGame(true);
+        }
+      } else {
+        item.classList.add('wrong');
+        setTimeout(() => {
+          item.textContent = '?';
+          item.classList.remove('wrong');
+        }, 500);
+      }
+    }
+
+    function endGame(won = false) {
+      gameActive = false;
+      clearInterval(gameTimer);
+      
+      const items = gameGrid.querySelectorAll('.game-item');
+      items.forEach(item => {
+        if (!foundItems.includes(item.dataset.index)) {
+          item.textContent = item.dataset.emoji;
+        }
+      });
+
+      if (won) {
+        setTimeout(() => {
+          alert(`🎉 You won! Final Score: ${gameScoreValue}`);
+          restartGame.style.display = 'block';
+        }, 500);
+      } else {
+        setTimeout(() => {
+          alert(`⏰ Time's up! Final Score: ${gameScoreValue}`);
+          restartGame.style.display = 'block';
+        }, 500);
+      }
+    }
+
+    gameBtn.addEventListener('click', () => {
+      gameOverlay.classList.add('active');
+      startGame();
+    });
+
+    closeGame.addEventListener('click', () => {
+      gameOverlay.classList.remove('active');
+      if (gameTimer) clearInterval(gameTimer);
+      gameActive = false;
+    });
+
+    restartGame.addEventListener('click', () => {
+      startGame();
+    });
   </script>
 </body>
 </html>
