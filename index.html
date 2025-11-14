@@ -290,6 +290,42 @@
       backdrop-filter: blur(10px);
       border: 1px solid rgba(0, 255, 170, 0.2);
     }
+    .playlist-container {
+      margin: 1rem 0;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      border: 1px solid rgba(0, 255, 170, 0.3);
+    }
+    .playlist-item {
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      background: rgba(0, 255, 170, 0.1);
+      border: 1px solid rgba(0, 255, 170, 0.3);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+    }
+    .playlist-item:hover {
+      background: rgba(0, 255, 170, 0.3);
+      border-color: #00ffaa;
+      transform: translateX(5px);
+    }
+    .playlist-item.active {
+      background: rgba(0, 255, 170, 0.4);
+      border-color: #00ffaa;
+      box-shadow: 0 0 15px rgba(0, 255, 170, 0.4);
+    }
+    .playlist-item-title {
+      font-weight: bold;
+      color: #00ffaa;
+      margin-bottom: 0.25rem;
+    }
+    .playlist-item-subtitle {
+      font-size: 0.85rem;
+      color: #aaa;
+    }
     .audio-controls {
       width: 100%;
       margin: 1rem 0;
@@ -430,9 +466,23 @@
     </div>
 
     <div class="player-container">
+      <div class="playlist-container">
+        <h4 style="color: #00ffaa; margin-top: 0;">Playlist</h4>
+        <div class="playlist-item active" data-track="0">
+          <div class="playlist-item-title">Lookin' for Sh!t</div>
+          <div class="playlist-item-subtitle">BillyGoat · Swamp-Hop / Glitch Bounce</div>
+        </div>
+        <div class="playlist-item" data-track="1">
+          <div class="playlist-item-title">Return to Sender (Goat Got the Receipt)</div>
+          <div class="playlist-item-subtitle">BillyGoat · Swamp-Hop / Glitch Bounce</div>
+        </div>
+      </div>
+
       <div class="control-buttons">
+        <button id="prevBtn">⏮ Prev</button>
         <button id="playPauseBtn" class="play-btn">▶ Play</button>
         <button id="stopBtn">⏹ Stop</button>
+        <button id="nextBtn">Next ⏭</button>
       </div>
       
       <div class="progress-container">
@@ -452,10 +502,7 @@
       </div>
     </div>
 
-    <audio id="audioPlayer" preload="metadata">
-      <source src="lookin for shit.mp3" type="audio/mpeg">
-      Your browser does not support the audio element.
-    </audio>
+    <audio id="audioPlayer" preload="metadata"></audio>
   </div>
 
   <!-- Game Overlay -->
@@ -471,9 +518,26 @@
   </div>
 
   <script>
+    // Playlist tracks
+    const tracks = [
+      {
+        title: "Lookin' for Sh!t",
+        subtitle: "BillyGoat · Swamp-Hop / Glitch Bounce",
+        file: "lookin for shit.mp3"
+      },
+      {
+        title: "Return to Sender (Goat Got the Receipt)",
+        subtitle: "BillyGoat · Swamp-Hop / Glitch Bounce",
+        file: "Return to Sender (Goat Got the Receipt).mp3"
+      }
+    ];
+
+    let currentTrackIndex = 0;
     const audio = document.getElementById('audioPlayer');
     const playPauseBtn = document.getElementById('playPauseBtn');
     const stopBtn = document.getElementById('stopBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
     const progressBar = document.getElementById('progressBar');
     const progressFill = document.getElementById('progressFill');
     const currentTimeEl = document.getElementById('currentTime');
@@ -482,6 +546,7 @@
     const volumeValue = document.getElementById('volumeValue');
     const canvas = document.getElementById('visualizer');
     const ctx = canvas.getContext('2d');
+    const playlistItems = document.querySelectorAll('.playlist-item');
 
     // Set canvas size
     function resizeCanvas() {
@@ -525,8 +590,26 @@
       }
     }
 
+    // Load track
+    function loadTrack(index) {
+      currentTrackIndex = index;
+      const track = tracks[index];
+      audio.src = track.file;
+      
+      // Update playlist UI
+      playlistItems.forEach((item, i) => {
+        item.classList.toggle('active', i === index);
+      });
+      
+      // Update title if needed
+      if (audio.readyState >= 2) {
+        totalTimeEl.textContent = formatTime(audio.duration);
+      }
+    }
+
     // Format time
     function formatTime(seconds) {
+      if (!isFinite(seconds)) return '0:00';
       const mins = Math.floor(seconds / 60);
       const secs = Math.floor(seconds % 60);
       return `${mins}:${secs.toString().padStart(2, '0')}`;
@@ -538,6 +621,18 @@
       progressFill.style.width = progress + '%';
       currentTimeEl.textContent = formatTime(audio.currentTime);
     }
+
+    // Playlist item clicks
+    playlistItems.forEach((item, index) => {
+      item.addEventListener('click', () => {
+        if (index !== currentTrackIndex) {
+          loadTrack(index);
+          if (!audio.paused) {
+            audio.play();
+          }
+        }
+      });
+    });
 
     // Play/Pause
     playPauseBtn.addEventListener('click', () => {
@@ -564,6 +659,31 @@
       playPauseBtn.classList.add('play-btn');
     });
 
+    // Previous
+    prevBtn.addEventListener('click', () => {
+      const newIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+      loadTrack(newIndex);
+      if (!audio.paused) {
+        audio.play();
+      }
+    });
+
+    // Next
+    nextBtn.addEventListener('click', () => {
+      const newIndex = (currentTrackIndex + 1) % tracks.length;
+      loadTrack(newIndex);
+      if (!audio.paused) {
+        audio.play();
+      }
+    });
+
+    // Auto-play next track
+    audio.addEventListener('ended', () => {
+      const newIndex = (currentTrackIndex + 1) % tracks.length;
+      loadTrack(newIndex);
+      audio.play();
+    });
+
     // Progress bar click
     progressBar.addEventListener('click', (e) => {
       const rect = progressBar.getBoundingClientRect();
@@ -584,6 +704,9 @@
     });
 
     audio.addEventListener('timeupdate', updateProgress);
+
+    // Load first track
+    loadTrack(0);
 
     // Visualizer modes
     const modeButtons = document.querySelectorAll('.mode-btn');
