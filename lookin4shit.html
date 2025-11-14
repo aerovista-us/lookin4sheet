@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lookin' for Sh!t – BillyGoat</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #0b0b0c 0%, #1a0a1a 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #f8f8f2;
+      text-align: center;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin: 0.5rem 0;
+      background: linear-gradient(90deg, #00ffaa, #5500ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 30px rgba(0, 255, 170, 0.5);
+    }
+    h3 {
+      font-size: 1.2rem;
+      color: #aaa;
+      margin-bottom: 2rem;
+      font-weight: 300;
+    }
+    .album-art {
+      max-width: 100%;
+      width: 400px;
+      height: 400px;
+      object-fit: cover;
+      border-radius: 16px;
+      box-shadow: 0 0 60px rgba(0, 255, 170, 0.4), 0 0 120px rgba(85, 0, 255, 0.3);
+      margin: 2rem auto;
+      display: block;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .album-art:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 80px rgba(0, 255, 170, 0.6), 0 0 160px rgba(85, 0, 255, 0.4);
+    }
+    .visualizer-container {
+      margin: 2rem auto;
+      width: 100%;
+      max-width: 800px;
+      aspect-ratio: 16/9;
+      background: linear-gradient(135deg, rgba(0, 255, 170, 0.1), rgba(85, 0, 255, 0.1));
+      border: 2px solid rgba(0, 255, 255, 0.3);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .player-container {
+      margin: 2rem auto;
+      max-width: 800px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 1.5rem;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 255, 170, 0.2);
+    }
+    .audio-controls {
+      width: 100%;
+      margin: 1rem 0;
+    }
+    .control-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    button {
+      background: linear-gradient(135deg, #00ffaa, #00cc88);
+      border: none;
+      color: #0b0b0c;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 255, 170, 0.3);
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 255, 170, 0.5);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    button.pause-btn {
+      background: linear-gradient(135deg, #ff5500, #ff3300);
+      box-shadow: 0 4px 15px rgba(255, 85, 0, 0.3);
+    }
+    button.pause-btn:hover {
+      box-shadow: 0 6px 20px rgba(255, 85, 0, 0.5);
+    }
+    .progress-container {
+      width: 100%;
+      margin: 1rem 0;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00ffaa, #5500ff);
+      width: 0%;
+      transition: width 0.1s linear;
+      box-shadow: 0 0 10px rgba(0, 255, 170, 0.5);
+    }
+    .time-display {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+    .volume-control {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .volume-slider {
+      width: 200px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+    }
+    .volume-slider::-webkit-slider-thumb {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #00ffaa;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0, 255, 170, 0.5);
+    }
+    .volume-slider::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      background: #00ffaa;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 0 10px rgba(0, 255, 170, 0.5);
+    }
+    audio {
+      display: none;
+    }
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+      .album-art {
+        width: 100%;
+        max-width: 300px;
+        height: auto;
+      }
+      .control-buttons {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎧 Lookin' for Sh!t</h1>
+    <h3>BillyGoat · Swamp-Hop / Glitch Bounce</h3>
+
+    <img src="goattinshit.png" alt="Album Art – BillyGoat Glitch" class="album-art" />
+
+    <div class="visualizer-container">
+      <canvas id="visualizer"></canvas>
+    </div>
+
+    <div class="player-container">
+      <div class="control-buttons">
+        <button id="playPauseBtn" class="play-btn">▶ Play</button>
+        <button id="stopBtn">⏹ Stop</button>
+      </div>
+      
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="time-display">
+          <span id="currentTime">0:00</span>
+          <span id="totalTime">0:00</span>
+        </div>
+      </div>
+
+      <div class="volume-control">
+        <span>🔊</span>
+        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
+        <span id="volumeValue">100%</span>
+      </div>
+    </div>
+
+    <audio id="audioPlayer" preload="metadata">
+      <source src="lookin for shit.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+  </div>
+
+  <script>
+    const audio = document.getElementById('audioPlayer');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+    const currentTimeEl = document.getElementById('currentTime');
+    const totalTimeEl = document.getElementById('totalTime');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const volumeValue = document.getElementById('volumeValue');
+    const canvas = document.getElementById('visualizer');
+    const ctx = canvas.getContext('2d');
+
+    // Set canvas size
+    function resizeCanvas() {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Audio context and analyzer
+    let audioContext;
+    let analyser;
+    let dataArray;
+    let source;
+
+    function initAudioContext() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        source = audioContext.createMediaElementSource(audio);
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
+      }
+    }
+
+    // Format time
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    // Update progress
+    function updateProgress() {
+      const progress = (audio.currentTime / audio.duration) * 100;
+      progressFill.style.width = progress + '%';
+      currentTimeEl.textContent = formatTime(audio.currentTime);
+    }
+
+    // Play/Pause
+    playPauseBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        initAudioContext();
+        audio.play();
+        playPauseBtn.textContent = '⏸ Pause';
+        playPauseBtn.classList.add('pause-btn');
+        playPauseBtn.classList.remove('play-btn');
+      } else {
+        audio.pause();
+        playPauseBtn.textContent = '▶ Play';
+        playPauseBtn.classList.remove('pause-btn');
+        playPauseBtn.classList.add('play-btn');
+      }
+    });
+
+    // Stop
+    stopBtn.addEventListener('click', () => {
+      audio.pause();
+      audio.currentTime = 0;
+      playPauseBtn.textContent = '▶ Play';
+      playPauseBtn.classList.remove('pause-btn');
+      playPauseBtn.classList.add('play-btn');
+    });
+
+    // Progress bar click
+    progressBar.addEventListener('click', (e) => {
+      const rect = progressBar.getBoundingClientRect();
+      const percent = (e.clientX - rect.left) / rect.width;
+      audio.currentTime = percent * audio.duration;
+    });
+
+    // Volume control
+    volumeSlider.addEventListener('input', (e) => {
+      const volume = e.target.value / 100;
+      audio.volume = volume;
+      volumeValue.textContent = e.target.value + '%';
+    });
+
+    // Update time display
+    audio.addEventListener('loadedmetadata', () => {
+      totalTimeEl.textContent = formatTime(audio.duration);
+    });
+
+    audio.addEventListener('timeupdate', updateProgress);
+
+    // Visualizer
+    function drawVisualizer() {
+      requestAnimationFrame(drawVisualizer);
+
+      if (!analyser) return;
+
+      analyser.getByteFrequencyData(dataArray);
+
+      ctx.fillStyle = 'rgba(11, 11, 12, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const barWidth = canvas.width / dataArray.length * 2;
+      let x = 0;
+
+      for (let i = 0; i < dataArray.length; i++) {
+        const barHeight = (dataArray[i] / 255) * canvas.height * 0.8;
+
+        const gradient = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - barHeight);
+        gradient.addColorStop(0, '#00ffaa');
+        gradient.addColorStop(0.5, '#5500ff');
+        gradient.addColorStop(1, '#ff00aa');
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
+
+        // Add glow effect
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#00ffaa';
+        ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
+        ctx.shadowBlur = 0;
+
+        x += barWidth;
+      }
+
+      // Draw waveform overlay
+      analyser.getByteTimeDomainData(dataArray);
+      ctx.strokeStyle = '#00ffaa';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      const sliceWidth = canvas.width / dataArray.length;
+      let waveformX = 0;
+
+      for (let i = 0; i < dataArray.length; i++) {
+        const v = dataArray[i] / 128.0;
+        const y = (v * canvas.height) / 2;
+
+        if (i === 0) {
+          ctx.moveTo(waveformX, y);
+        } else {
+          ctx.lineTo(waveformX, y);
+        }
+
+        waveformX += sliceWidth;
+      }
+
+      ctx.stroke();
+    }
+
+    drawVisualizer();
+  </script>
+</body>
+</html>
