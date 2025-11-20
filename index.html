@@ -420,12 +420,96 @@
       border-color: #ff66cc;
     }
     /* Visualizer mode selector */
-    .visualizer-modes {
+    /* Settings Menu */
+    .settings-menu {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: 380px;
+      max-width: 90vw;
+      height: 100vh;
+      background: rgba(11, 11, 12, 0.98);
+      -webkit-backdrop-filter: blur(30px);
+      backdrop-filter: blur(30px);
+      border-left: 2px solid rgba(0, 255, 170, 0.3);
+      z-index: 2000;
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+    }
+    
+    .settings-menu.open {
+      right: 0;
+    }
+    
+    .settings-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid rgba(0, 255, 170, 0.2);
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .settings-header h3 {
+      margin: 0;
+      color: var(--primary-cyan);
+      font-size: 1.25rem;
+    }
+    
+    .settings-close {
+      background: transparent;
+      border: none;
+      color: var(--text-light);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      line-height: 1;
+    }
+    
+    .settings-content {
+      padding: 1.5rem;
+    }
+    
+    .settings-section {
+      margin-bottom: 2rem;
+    }
+    
+    .settings-section h4 {
+      color: var(--primary-cyan);
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+      opacity: 0.8;
+    }
+    
+    .settings-control {
+      margin-bottom: 1.25rem;
+    }
+    
+    .settings-control label {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .settings-control input[type="range"] {
+      width: 100%;
+      height: 8px;
+    }
+    
+    .settings-control .value-display {
+      color: var(--primary-cyan);
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+    
+    .visualizer-modes {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: 0.5rem;
-      margin: 1rem 0;
-      flex-wrap: wrap;
     }
     .mode-btn {
       padding: 0.625rem 1.25rem;
@@ -518,6 +602,7 @@
       position: relative;
       z-index: 1;
       animation: fadeInUp 0.8s ease-out;
+      padding-bottom: 120px; /* Space for fixed player */
     }
     
     @keyframes fadeInUp {
@@ -560,30 +645,28 @@
       letter-spacing: 0.05em;
       text-transform: uppercase;
     }
+    /* Background Visualizer Wallpaper */
     .visualizer-container {
-      margin: 2.5rem auto;
-      width: 100%;
-      max-width: 900px;
-      aspect-ratio: 16/9;
-      background: 
-        linear-gradient(135deg, rgba(0, 255, 170, 0.08), rgba(85, 0, 255, 0.08)),
-        radial-gradient(circle at center, rgba(0, 255, 170, 0.05), transparent);
-      border: 2px solid rgba(0, 255, 170, 0.25);
-      border-radius: 20px;
-      position: relative;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      margin: 0;
+      max-width: none;
+      aspect-ratio: auto;
       overflow: hidden;
-      backdrop-filter: blur(20px);
-      box-shadow: 
-        0 0 40px rgba(0, 255, 170, 0.15),
-        inset 0 0 60px rgba(85, 0, 255, 0.1);
-      transition: all 0.4s ease;
+      pointer-events: none;
+      opacity: 0.3;
     }
     
-    .visualizer-container:hover {
-      border-color: rgba(0, 255, 170, 0.4);
-      box-shadow: 
-        0 0 60px rgba(0, 255, 170, 0.25),
-        inset 0 0 80px rgba(85, 0, 255, 0.15);
+    .visualizer-container canvas {
+      width: 100%;
+      height: 100%;
     }
     canvas {
       width: 100%;
@@ -594,39 +677,111 @@
     }
     /* Mobile-First Player Container */
     .player-container {
-      margin: 1.5rem auto;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
       width: 100%;
       max-width: 100%;
-      background: 
-        linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03)),
-        radial-gradient(circle at top left, rgba(0, 255, 170, 0.08), transparent 50%),
-        radial-gradient(circle at bottom right, rgba(85, 0, 255, 0.08), transparent 50%);
-      border-radius: 16px;
-      padding: 1.25rem;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(0, 255, 170, 0.25);
-      box-shadow: 
-        0 4px 16px rgba(0, 0, 0, 0.3),
-        inset 0 0 40px rgba(0, 255, 170, 0.05);
-      transition: all 0.4s ease;
+      background: rgba(11, 11, 12, 0.95);
+      -webkit-backdrop-filter: blur(30px);
+      backdrop-filter: blur(30px);
+      border-top: 2px solid rgba(0, 255, 170, 0.3);
+      border-radius: 0;
+      padding: 1rem 1.25rem;
+      box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .player-container.compact {
+      transform: translateY(calc(100% - 80px));
+    }
+    
+    .player-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    
+    .player-title {
+      color: var(--primary-cyan);
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    
+    .player-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .playlist-toggle, .settings-toggle {
+      background: rgba(0, 255, 170, 0.1);
+      border: 1px solid rgba(0, 255, 170, 0.3);
+      color: var(--primary-cyan);
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+    }
+    
+    .playlist-toggle:hover, .settings-toggle:hover {
+      background: rgba(0, 255, 170, 0.2);
+      border-color: var(--primary-cyan);
+    }
+    
+    .playlist-slideout {
+      position: fixed;
+      bottom: 80px;
+      left: 0;
+      right: 0;
+      max-height: 60vh;
+      background: rgba(11, 11, 12, 0.98);
+      -webkit-backdrop-filter: blur(30px);
+      backdrop-filter: blur(30px);
+      border-top: 2px solid rgba(0, 255, 170, 0.3);
+      z-index: 99;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .playlist-slideout.open {
+      transform: translateY(0);
+    }
+    
+    .playlist-slideout-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid rgba(0, 255, 170, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      background: rgba(11, 11, 12, 0.98);
+      z-index: 1;
+    }
+    
+    .playlist-slideout-content {
+      padding: 1rem 1.25rem;
     }
     
     .playlist-container {
-      margin: 1rem 0;
-      padding: 1rem;
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 12px;
-      border: 1px solid rgba(0, 255, 170, 0.3);
       display: grid;
       grid-template-columns: 1fr;
-      gap: 0.625rem;
-      max-height: 60vh;
-      overflow-y: auto;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: thin;
-      scrollbar-color: var(--primary-cyan) rgba(0, 0, 0, 0.3);
+      gap: 0.5rem;
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      max-height: none;
+      overflow: visible;
     }
     
     .playlist-container::-webkit-scrollbar {
@@ -748,34 +903,53 @@
       margin: 1rem 0;
     }
     .control-buttons {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
-      margin: 1.25rem 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0.75rem 0;
       width: 100%;
+    }
+    
+    .control-buttons button {
+      flex: 1;
+      max-width: 80px;
+    }
+    
+    .control-buttons #playPauseBtn {
+      flex: 1.5;
+      max-width: 120px;
+      min-width: 100px;
     }
     
     button {
       background: linear-gradient(135deg, var(--primary-cyan), #00cc88);
       border: none;
       color: var(--bg-dark);
-      padding: 1rem 1.25rem;
-      border-radius: 12px;
-      font-size: 0.9375rem;
+      padding: 0.75rem 0.5rem;
+      border-radius: 10px;
+      font-size: 0.8125rem;
       font-weight: 600;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: 
-        0 4px 12px rgba(0, 255, 170, 0.3),
+        0 2px 8px rgba(0, 255, 170, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
       position: relative;
       overflow: hidden;
       letter-spacing: 0.02em;
-      min-height: 48px;
+      min-height: 44px;
       -webkit-user-select: none;
       user-select: none;
+    }
+    
+    .control-btn {
+      background: rgba(0, 255, 170, 0.15) !important;
+      color: var(--primary-cyan) !important;
+      font-size: 1.125rem !important;
+      padding: 0.5rem !important;
     }
     
     button::before {
@@ -822,14 +996,14 @@
     }
     .progress-container {
       width: 100%;
-      margin: 1.25rem 0;
+      margin: 0.75rem 0;
     }
     
     .progress-bar {
       width: 100%;
-      height: 12px;
+      height: 8px;
       background: rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
+      border-radius: 8px;
       overflow: hidden;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
@@ -840,7 +1014,7 @@
     }
     
     .progress-bar:active {
-      height: 14px;
+      height: 10px;
       background: rgba(255, 255, 255, 0.15);
     }
     
@@ -875,8 +1049,8 @@
     .time-display {
       display: flex;
       justify-content: space-between;
-      margin-top: 0.75rem;
-      font-size: 0.875rem;
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
       color: var(--text-muted);
       font-weight: 500;
       letter-spacing: 0.05em;
@@ -886,11 +1060,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.875rem;
-      margin-top: 1.25rem;
-      padding: 1rem;
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 12px;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
       border: 1px solid rgba(0, 255, 170, 0.15);
     }
     
@@ -1101,20 +1275,19 @@
 
     <button class="glitch-btn" id="gameBtn">🎮 Find the Sh!t Game</button>
 
-    <div class="visualizer-modes">
-      <button class="mode-btn active" data-mode="bars">Bars</button>
-      <button class="mode-btn" data-mode="circle">Circle</button>
-      <button class="mode-btn" data-mode="waveform">Waveform</button>
-      <button class="mode-btn" data-mode="particles">Particles</button>
-    </div>
-
+    <!-- Background Visualizer -->
     <div class="visualizer-container">
       <canvas id="visualizer"></canvas>
     </div>
 
-    <div class="player-container">
-      <h4 style="color: var(--primary-cyan); margin-top: 0; margin-bottom: 1.5rem; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-shadow: 0 0 15px rgba(0, 255, 170, 0.4); text-align: center;">🎵 Playlist — 8 Tracks</h4>
-      <div class="playlist-container">
+    <!-- Playlist Slideout -->
+    <div class="playlist-slideout" id="playlistSlideout">
+      <div class="playlist-slideout-header">
+        <h4 style="color: var(--primary-cyan); margin: 0; font-size: 1rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">🎵 Playlist — 8 Tracks</h4>
+        <button class="settings-close" id="closePlaylist">×</button>
+      </div>
+      <div class="playlist-slideout-content">
+        <div class="playlist-container">
         <div class="playlist-item active" data-track="0">
           <div class="playlist-item-title">Lookin' for Sh!t</div>
           <div class="playlist-item-subtitle">BillyGoat · Swamp-Hop / Glitch Bounce</div>
@@ -1148,28 +1321,25 @@
           <div class="playlist-item-subtitle">BillyGoat · Swamp-Hop / Glitch Bounce</div>
         </div>
       </div>
+    </div>
 
-      <div class="control-buttons">
-        <button id="shuffleBtn" class="control-btn" title="Shuffle">🔀</button>
-        <button id="prevBtn">⏮ Prev</button>
-        <button id="playPauseBtn" class="play-btn">▶ Play</button>
-        <button id="stopBtn">⏹ Stop</button>
-        <button id="nextBtn">Next ⏭</button>
-        <button id="repeatBtn" class="control-btn" title="Repeat">🔁</button>
+    <!-- Compact Player Controls -->
+    <div class="player-container" id="playerContainer">
+      <div class="player-header">
+        <div class="player-title" id="nowPlayingTitle">Select a track</div>
+        <div class="player-actions">
+          <button class="playlist-toggle" id="playlistToggle">📋</button>
+          <button class="settings-toggle" id="settingsToggle">⚙️</button>
+        </div>
       </div>
       
-      <div class="advanced-controls" style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1rem 0; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px;">
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-          <label for="speedSlider" style="font-size: 0.875rem; color: var(--text-muted);">Speed:</label>
-          <input type="range" id="speedSlider" min="0.5" max="2" step="0.1" value="1" aria-label="Playback speed" style="width: 100px; height: 6px;">
-          <span id="speedValue" style="min-width: 40px; font-size: 0.875rem; color: var(--primary-cyan); font-weight: 600;">1.0x</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-          <label for="bassSlider" style="font-size: 0.875rem; color: var(--text-muted);">Bass:</label>
-          <input type="range" id="bassSlider" min="0" max="20" step="1" value="0" aria-label="Bass boost" style="width: 100px; height: 6px;">
-          <span id="bassValue" style="min-width: 40px; font-size: 0.875rem; color: var(--primary-cyan); font-weight: 600;">0dB</span>
-        </div>
-        <button id="crossfadeBtn" class="control-btn" title="Crossfade" style="padding: 0.5rem 1rem; font-size: 0.875rem;">🎚️ Crossfade</button>
+      <div class="control-buttons">
+        <button id="shuffleBtn" class="control-btn" title="Shuffle">🔀</button>
+        <button id="prevBtn">⏮</button>
+        <button id="playPauseBtn" class="play-btn">▶</button>
+        <button id="stopBtn">⏹</button>
+        <button id="nextBtn">⏭</button>
+        <button id="repeatBtn" class="control-btn" title="Repeat">🔁</button>
       </div>
       
       <div class="progress-container">
@@ -1190,6 +1360,42 @@
     </div>
 
     <audio id="audioPlayer" preload="metadata"></audio>
+    
+    <!-- Settings Menu -->
+    <div class="settings-menu" id="settingsMenu">
+      <div class="settings-header">
+        <h3>⚙️ Settings</h3>
+        <button class="settings-close" id="closeSettings">×</button>
+      </div>
+      <div class="settings-content">
+        <div class="settings-section">
+          <h4>Playback</h4>
+          <div class="settings-control">
+            <label for="speedSlider">Playback Speed</label>
+            <input type="range" id="speedSlider" min="0.5" max="2" step="0.1" value="1" aria-label="Playback speed">
+            <div class="value-display" id="speedValue">1.0x</div>
+          </div>
+          <div class="settings-control">
+            <label for="bassSlider">Bass Boost</label>
+            <input type="range" id="bassSlider" min="0" max="20" step="1" value="0" aria-label="Bass boost">
+            <div class="value-display" id="bassValue">0dB</div>
+          </div>
+          <div class="settings-control">
+            <button id="crossfadeBtn" class="control-btn" style="width: 100%; padding: 0.75rem; margin-top: 0.5rem;">🎚️ Crossfade: <span id="crossfadeStatus">Off</span></button>
+          </div>
+        </div>
+        
+        <div class="settings-section">
+          <h4>Visualizer Style</h4>
+          <div class="visualizer-modes">
+            <button class="mode-btn active" data-mode="bars">Bars</button>
+            <button class="mode-btn" data-mode="circle">Circle</button>
+            <button class="mode-btn" data-mode="waveform">Waveform</button>
+            <button class="mode-btn" data-mode="particles">Particles</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Game Overlay -->
@@ -1394,6 +1600,9 @@
       playlistItems.forEach((item, i) => {
         item.classList.toggle('active', i === index);
       });
+      
+      // Update now playing title
+      updateNowPlayingTitle();
       
       // Update title if needed
       if (audio.readyState >= 2) {
@@ -1688,8 +1897,57 @@
       }
     });
     
+    // Settings menu toggle
+    const settingsMenu = document.getElementById('settingsMenu');
+    const settingsToggle = document.getElementById('settingsToggle');
+    const closeSettings = document.getElementById('closeSettings');
+    const playlistSlideout = document.getElementById('playlistSlideout');
+    const playlistToggle = document.getElementById('playlistToggle');
+    const closePlaylist = document.getElementById('closePlaylist');
+    const nowPlayingTitle = document.getElementById('nowPlayingTitle');
+    const playerContainer = document.getElementById('playerContainer');
+    
+    settingsToggle.addEventListener('click', () => {
+      settingsMenu.classList.add('open');
+    });
+    
+    closeSettings.addEventListener('click', () => {
+      settingsMenu.classList.remove('open');
+    });
+    
+    playlistToggle.addEventListener('click', () => {
+      playlistSlideout.classList.toggle('open');
+    });
+    
+    closePlaylist.addEventListener('click', () => {
+      playlistSlideout.classList.remove('open');
+    });
+    
+    // Close settings when clicking outside
+    settingsMenu.addEventListener('click', (e) => {
+      if (e.target === settingsMenu) {
+        settingsMenu.classList.remove('open');
+      }
+    });
+    
+    // Update now playing title
+    function updateNowPlayingTitle() {
+      if (tracks[currentTrackIndex]) {
+        nowPlayingTitle.textContent = tracks[currentTrackIndex].title;
+      }
+    }
+    
+    // Update crossfade status
+    const crossfadeStatus = document.getElementById('crossfadeStatus');
+    crossfadeBtn.addEventListener('click', () => {
+      isCrossfading = !isCrossfading;
+      crossfadeBtn.style.opacity = isCrossfading ? '1' : '0.5';
+      crossfadeStatus.textContent = isCrossfading ? 'On' : 'Off';
+    });
+    
     // Load first track
     loadTrack(0);
+    updateNowPlayingTitle();
 
     // Visualizer modes
     const modeButtons = document.querySelectorAll('.mode-btn');
