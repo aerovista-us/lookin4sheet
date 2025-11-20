@@ -593,6 +593,18 @@
     const ctx = canvas.getContext('2d');
     const playlistItems = document.querySelectorAll('.playlist-item');
 
+    function updatePlayPauseButton(isPlaying) {
+      if (isPlaying) {
+        playPauseBtn.textContent = '⏸ Pause';
+        playPauseBtn.classList.add('pause-btn');
+        playPauseBtn.classList.remove('play-btn');
+      } else {
+        playPauseBtn.textContent = '▶ Play';
+        playPauseBtn.classList.remove('pause-btn');
+        playPauseBtn.classList.add('play-btn');
+      }
+    }
+
     // Set canvas size
     function resizeCanvas() {
       canvas.width = canvas.offsetWidth;
@@ -640,6 +652,7 @@
       currentTrackIndex = index;
       const track = tracks[index];
       audio.src = track.file;
+      audio.currentTime = 0;
       
       // Update playlist UI
       playlistItems.forEach((item, i) => {
@@ -671,9 +684,13 @@
     playlistItems.forEach((item, index) => {
       item.addEventListener('click', () => {
         if (index !== currentTrackIndex) {
+          const wasPlaying = !audio.paused;
           loadTrack(index);
-          if (!audio.paused) {
-            audio.play();
+          if (wasPlaying) {
+            initAudioContext();
+            audio.play().catch(() => {});
+          } else {
+            updatePlayPauseButton(false);
           }
         }
       });
@@ -684,14 +701,8 @@
       if (audio.paused) {
         initAudioContext();
         audio.play();
-        playPauseBtn.textContent = '⏸ Pause';
-        playPauseBtn.classList.add('pause-btn');
-        playPauseBtn.classList.remove('play-btn');
       } else {
         audio.pause();
-        playPauseBtn.textContent = '▶ Play';
-        playPauseBtn.classList.remove('pause-btn');
-        playPauseBtn.classList.add('play-btn');
       }
     });
 
@@ -699,26 +710,32 @@
     stopBtn.addEventListener('click', () => {
       audio.pause();
       audio.currentTime = 0;
-      playPauseBtn.textContent = '▶ Play';
-      playPauseBtn.classList.remove('pause-btn');
-      playPauseBtn.classList.add('play-btn');
+      updatePlayPauseButton(false);
     });
 
     // Previous
     prevBtn.addEventListener('click', () => {
       const newIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+      const wasPlaying = !audio.paused;
       loadTrack(newIndex);
-      if (!audio.paused) {
-        audio.play();
+      if (wasPlaying) {
+        initAudioContext();
+        audio.play().catch(() => {});
+      } else {
+        updatePlayPauseButton(false);
       }
     });
 
     // Next
     nextBtn.addEventListener('click', () => {
       const newIndex = (currentTrackIndex + 1) % tracks.length;
+      const wasPlaying = !audio.paused;
       loadTrack(newIndex);
-      if (!audio.paused) {
-        audio.play();
+      if (wasPlaying) {
+        initAudioContext();
+        audio.play().catch(() => {});
+      } else {
+        updatePlayPauseButton(false);
       }
     });
 
@@ -749,6 +766,12 @@
     });
 
     audio.addEventListener('timeupdate', updateProgress);
+    audio.addEventListener('play', () => updatePlayPauseButton(true));
+    audio.addEventListener('pause', () => {
+      if (audio.paused) {
+        updatePlayPauseButton(false);
+      }
+    });
 
     // Load first track
     loadTrack(0);
