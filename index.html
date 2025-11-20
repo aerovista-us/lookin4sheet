@@ -496,6 +496,10 @@
           <div class="playlist-item-title">Ripples Wide</div>
           <div class="playlist-item-subtitle">BillyGoat · Swamp-Hop / Glitch Bounce</div>
         </div>
+        <div class="playlist-item" data-track="7">
+          <div class="playlist-item-title">Goddamn Connector</div>
+          <div class="playlist-item-subtitle">BillyGoat · Swamp-Hop / Glitch Bounce</div>
+        </div>
       </div>
 
       <div class="control-buttons">
@@ -574,6 +578,11 @@
         title: "Ripples Wide",
         subtitle: "BillyGoat · Swamp-Hop / Glitch Bounce",
         file: "ripples_wide.mp3"
+      },
+      {
+        title: "Goddamn Connector",
+        subtitle: "BillyGoat · Swamp-Hop / Glitch Bounce",
+        file: "goddamn_connector.mp3"
       }
     ];
 
@@ -592,6 +601,7 @@
     const canvas = document.getElementById('visualizer');
     const ctx = canvas.getContext('2d');
     const playlistItems = document.querySelectorAll('.playlist-item');
+    let pendingAutoPlayHandler = null;
 
     function updatePlayPauseButton(isPlaying) {
       if (isPlaying) {
@@ -602,6 +612,37 @@
         playPauseBtn.textContent = '▶ Play';
         playPauseBtn.classList.remove('pause-btn');
         playPauseBtn.classList.add('play-btn');
+      }
+    }
+
+    function clearPendingAutoPlay() {
+      if (pendingAutoPlayHandler) {
+        audio.removeEventListener('canplay', pendingAutoPlayHandler);
+        pendingAutoPlayHandler = null;
+      }
+    }
+
+    function resumePlaybackAfterTrackChange() {
+      const startPlayback = () => {
+        initAudioContext();
+        const playPromise = audio.play();
+        if (playPromise && typeof playPromise.catch === 'function') {
+          playPromise.catch(err => {
+            console.warn('Auto-resume failed', err);
+            updatePlayPauseButton(false);
+          });
+        }
+      };
+
+      if (audio.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
+        startPlayback();
+      } else {
+        clearPendingAutoPlay();
+        pendingAutoPlayHandler = () => {
+          clearPendingAutoPlay();
+          startPlayback();
+        };
+        audio.addEventListener('canplay', pendingAutoPlayHandler, { once: true });
       }
     }
 
@@ -651,8 +692,10 @@
     function loadTrack(index) {
       currentTrackIndex = index;
       const track = tracks[index];
+      clearPendingAutoPlay();
       audio.src = track.file;
       audio.currentTime = 0;
+      audio.load();
       
       // Update playlist UI
       playlistItems.forEach((item, i) => {
@@ -687,9 +730,9 @@
           const wasPlaying = !audio.paused;
           loadTrack(index);
           if (wasPlaying) {
-            initAudioContext();
-            audio.play().catch(() => {});
+            resumePlaybackAfterTrackChange();
           } else {
+            clearPendingAutoPlay();
             updatePlayPauseButton(false);
           }
         }
@@ -710,6 +753,7 @@
     stopBtn.addEventListener('click', () => {
       audio.pause();
       audio.currentTime = 0;
+      clearPendingAutoPlay();
       updatePlayPauseButton(false);
     });
 
@@ -719,9 +763,9 @@
       const wasPlaying = !audio.paused;
       loadTrack(newIndex);
       if (wasPlaying) {
-        initAudioContext();
-        audio.play().catch(() => {});
+        resumePlaybackAfterTrackChange();
       } else {
+        clearPendingAutoPlay();
         updatePlayPauseButton(false);
       }
     });
@@ -732,9 +776,9 @@
       const wasPlaying = !audio.paused;
       loadTrack(newIndex);
       if (wasPlaying) {
-        initAudioContext();
-        audio.play().catch(() => {});
+        resumePlaybackAfterTrackChange();
       } else {
+        clearPendingAutoPlay();
         updatePlayPauseButton(false);
       }
     });
