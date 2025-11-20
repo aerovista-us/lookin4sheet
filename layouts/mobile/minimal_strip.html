@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mobile Player — Minimal Strip</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #020617;
+      --panel: #020617;
+      --accent: #4fd1c5;
+      --accent-soft: rgba(79, 209, 197, 0.16);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: rgba(55, 65, 81, 0.9);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
+      color: var(--text);
+    }
+
+    .shell {
+      height: 100vh;
+      max-height: 100vh;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* HEADER */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+    }
+
+    .source-tag {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .now-label {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    /* MAIN */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: stretch;
+      gap: 12px;
+    }
+
+    /* CENTER BLOCK */
+    .center-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding-top: 8px;
+    }
+
+    .art-ring {
+      width: min(54vw, 210px);
+      aspect-ratio: 1 / 1;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 15% 0, rgba(255, 255, 255, 0.18), transparent 55%),
+        conic-gradient(
+          from 210deg,
+          rgba(79, 209, 197, 0.8),
+          rgba(56, 189, 248, 0.4),
+          rgba(248, 250, 252, 0.1),
+          rgba(79, 209, 197, 0.8)
+        );
+      padding: 3px;
+      box-shadow:
+        0 0 28px rgba(79, 209, 197, 0.45),
+        0 18px 32px rgba(0, 0, 0, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .art-core {
+      width: 100%;
+      height: 100%;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 20% 0, rgba(255, 255, 255, 0.12), transparent 60%),
+        linear-gradient(145deg, #020617, #020617);
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .play-main {
+      width: 64px;
+      height: 64px;
+      border-radius: 999px;
+      border: none;
+      background: radial-gradient(circle at 30% 0, #fef9c3, #facc15, #f97316);
+      color: #020617;
+      font-size: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 0 24px rgba(250, 204, 21, 0.7),
+        0 16px 30px rgba(0, 0, 0, 0.85);
+      cursor: pointer;
+    }
+
+    .play-main:active {
+      transform: scale(0.95);
+      box-shadow: none;
+    }
+
+    .circle-label {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .track-meta {
+      text-align: center;
+      max-width: 260px;
+    }
+
+    .track-title {
+      font-size: 15px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .track-sub {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+
+    /* PROGRESS + TRANSPORT MINI */
+    .progress-wrap {
+      padding: 4px 4px 0;
+    }
+
+    .progress-bar {
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(31, 41, 55, 0.9);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 42%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), #38bdf8);
+    }
+
+    .progress-times {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .mini-transport {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      padding-top: 4px;
+    }
+
+    .mini-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #020617;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .mini-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* BOTTOM STRIP */
+    .bottom-strip {
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.97);
+      border: 1px solid var(--border);
+      padding: 6px 10px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .strip-row-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+    }
+
+    .strip-track {
+      max-width: 65%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .strip-status {
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .strip-row-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 16px;
+      margin-top: 2px;
+    }
+
+    .strip-icons {
+      display: flex;
+      gap: 18px;
+    }
+
+    .strip-icons span {
+      cursor: pointer;
+    }
+
+    .strip-vol {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .vol-rail {
+      width: 70px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(30, 64, 175, 0.8);
+      overflow: hidden;
+    }
+
+    .vol-fill {
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #38bdf8);
+    }
+
+    /* SHEET */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.8);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease-out;
+    }
+
+    .backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .sheet {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 50%;
+      max-height: 360px;
+      background: rgba(15, 23, 42, 0.98);
+      border-radius: 18px 18px 0 0;
+      border-top: 1px solid var(--border);
+      transform: translateY(100%);
+      transition: transform 0.22s ease-out;
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      padding: 8px 12px 10px;
+    }
+
+    .sheet.active {
+      transform: translateY(0);
+    }
+
+    .handle {
+      width: 50px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.8);
+      margin: 4px auto 8px;
+    }
+
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .sheet-title {
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .sheet-close {
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .sheet-body {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 10px;
+      font-size: 12px;
+      overflow: hidden;
+    }
+
+    /* Playlist column */
+    .playlist-col {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-right: 4px;
+    }
+
+    .playlist-item {
+      padding: 6px 6px;
+      border-radius: 10px;
+      margin-bottom: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .playlist-item.current {
+      background: var(--accent-soft);
+      border: 1px solid rgba(79, 209, 197, 0.85);
+    }
+
+    .playlist-title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .playlist-sub {
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* EQ column */
+    .eq-col {
+      border-left: 1px solid rgba(31, 41, 55, 1);
+      padding-left: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .eq-bands {
+      display: flex;
+      justify-content: space-around;
+      padding-top: 2px;
+    }
+
+    .eq-band {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .eq-bar {
+      width: 14px;
+      border-radius: 999px;
+      background: rgba(30, 64, 175, 0.7);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .eq-level {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, var(--accent), #38bdf8);
+    }
+
+    .eq-footer {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .preset-pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .preset-pill.active {
+      border-color: rgba(79, 209, 197, 0.85);
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="header">
+      <div class="source-tag">EchoVerse</div>
+      <div class="now-label">Now playing · Swamp-Hop</div>
+    </div>
+
+    <div class="main">
+      <div>
+        <div class="center-block">
+          <div class="art-ring">
+            <div class="art-core">
+              <button class="play-main" aria-label="Play / Pause">▶</button>
+              <div class="circle-label">MOONBALL DESCENT</div>
+            </div>
+          </div>
+          <div class="track-meta">
+            <div class="track-title">Moonball Descent</div>
+            <div class="track-sub">Powder Peaks · EchoVerse Session</div>
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+          <div class="progress-times">
+            <span>01:18</span>
+            <span>-02:51</span>
+          </div>
+
+          <div class="mini-transport">
+            <button class="mini-btn" aria-label="Previous track">⏮</button>
+            <button class="mini-btn" aria-label="Rewind 10s">⏪</button>
+            <button class="mini-btn" aria-label="Skip 10s">⏩</button>
+            <button class="mini-btn" aria-label="Next track">⏭</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-strip">
+        <div class="strip-row-top">
+          <div class="strip-track">Moonball Descent · Powder Peaks</div>
+          <div class="strip-status">Session 01 · 3/12</div>
+        </div>
+        <div class="strip-row-bottom">
+          <div class="strip-icons">
+            <span id="queueBtn" title="Queue">📜</span>
+            <span id="deviceBtn" title="Output">📡</span>
+            <span id="moreBtn" title="Playlist & EQ">⋮</span>
+          </div>
+          <div class="strip-vol">
+            <span>VOL</span>
+            <div class="vol-rail">
+              <div class="vol-fill"></div>
+            </div>
+            <span>60%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERLAY SHEET -->
+  <div class="overlay">
+    <div class="backdrop" id="backdrop"></div>
+
+    <div class="sheet" id="sheet">
+      <div class="handle"></div>
+      <div class="sheet-header">
+        <div class="sheet-title">Queue · EQ</div>
+        <div class="sheet-close" id="sheetClose">✕</div>
+      </div>
+      <div class="sheet-body">
+        <div class="playlist-col">
+          <div class="playlist-item current">
+            <div class="playlist-title">Moonball Descent</div>
+            <div class="playlist-sub">Now playing · Swamp-Hop</div>
+          </div>
+          <div class="playlist-item">
+            <div class="playlist-title">Corner Pocket League Anthem</div>
+            <div class="playlist-sub">EchoVerse · Draft</div>
+          </div>
+          <div class="playlist-item">
+            <div class="playlist-title">EchoStory · Birthday Run</div>
+            <div class="playlist-sub">Narrative · Soft mix</div>
+          </div>
+          <div class="playlist-item">
+            <div class="playlist-title">ByteCast · Built This Before You</div>
+            <div class="playlist-sub">Talk · Episode 01</div>
+          </div>
+        </div>
+
+        <div class="eq-col">
+          <div class="eq-bands">
+            <div class="eq-band">
+              <div class="eq-bar" style="height: 32px;">
+                <div class="eq-level" style="height: 70%;"></div>
+              </div>
+              <span>Low</span>
+            </div>
+            <div class="eq-band">
+              <div class="eq-bar" style="height: 38px;">
+                <div class="eq-level" style="height: 55%;"></div>
+              </div>
+              <span>Low-mid</span>
+            </div>
+            <div class="eq-band">
+              <div class="eq-bar" style="height: 44px;">
+                <div class="eq-level" style="height: 45%;"></div>
+              </div>
+              <span>High-mid</span>
+            </div>
+            <div class="eq-band">
+              <div class="eq-bar" style="height: 34px;">
+                <div class="eq-level" style="height: 50%;"></div>
+              </div>
+              <span>High</span>
+            </div>
+          </div>
+          <div class="eq-footer">
+            <span>Preset</span>
+            <div>
+              <span class="preset-pill active">Swamp-Hop</span>
+              <span class="preset-pill">Flat</span>
+              <span class="preset-pill">Vocal</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const backdrop = document.getElementById("backdrop");
+    const sheet = document.getElementById("sheet");
+    const moreBtn = document.getElementById("moreBtn");
+    const queueBtn = document.getElementById("queueBtn");
+    const sheetClose = document.getElementById("sheetClose");
+
+    function openSheet() {
+      backdrop.classList.add("active");
+      sheet.classList.add("active");
+    }
+
+    function closeSheet() {
+      backdrop.classList.remove("active");
+      sheet.classList.remove("active");
+    }
+
+    moreBtn.addEventListener("click", openSheet);
+    queueBtn.addEventListener("click", openSheet);
+    backdrop.addEventListener("click", closeSheet);
+    sheetClose.addEventListener("click", closeSheet);
+  </script>
+</body>
+</html>
