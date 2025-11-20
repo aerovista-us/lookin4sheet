@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mobile Player — Tabs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-alt: #020617;
+      --panel: #0b1120;
+      --accent: #4fd1c5;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: rgba(55, 65, 81, 0.9);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1e293b 0, #020617 60%);
+      color: var(--text);
+    }
+
+    .shell {
+      height: 100vh;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .brand {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 11px;
+      opacity: 0.9;
+    }
+
+    .status-chip {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .art-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding-top: 4px;
+    }
+
+    .art {
+      width: min(60vw, 220px);
+      aspect-ratio: 1 / 1;
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at 10% 0, rgba(255, 255, 255, 0.16), transparent 60%),
+        radial-gradient(circle at 80% 100%, rgba(79, 209, 197, 0.25), transparent 55%),
+        linear-gradient(145deg, #020617, #020617);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .meta {
+      text-align: center;
+    }
+
+    .meta-title {
+      font-size: 16px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .meta-sub {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+
+    .progress {
+      padding: 6px 2px 4px;
+    }
+
+    .progress-bar {
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(30, 64, 175, 0.55);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 40%;
+      background: linear-gradient(90deg, var(--accent), #38bdf8);
+    }
+
+    .progress-times {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .transport {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      padding-top: 6px;
+    }
+
+    .t-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #020617;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .t-btn.main {
+      width: 60px;
+      height: 60px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 0, #fef9c3, #facc15, #f97316);
+      color: #020617;
+      border: none;
+    }
+
+    .t-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* TABS AREA */
+    .tabs-container {
+      margin-top: 4px;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.97);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .tabs-header {
+      display: flex;
+      border-bottom: 1px solid rgba(31, 41, 55, 1);
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 6px 0;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .tab.active {
+      color: var(--accent);
+      font-weight: 600;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .tab.active::after {
+      content: "";
+      position: absolute;
+      left: 20%;
+      right: 20%;
+      bottom: 0;
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), #38bdf8);
+    }
+
+    .tabs-body {
+      padding: 8px 10px 10px;
+      font-size: 12px;
+      min-height: 96px;
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    /* NOW PANEL */
+    .now-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .now-text {
+      max-width: 60%;
+    }
+
+    .now-line {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .now-label {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .volume-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .vol-rail {
+      width: 80px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(30, 64, 175, 0.8);
+      overflow: hidden;
+    }
+
+    .vol-fill {
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #38bdf8);
+    }
+
+    /* QUEUE PANEL */
+    .queue-item {
+      padding: 5px 4px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3px;
+    }
+
+    .queue-item.current {
+      background: rgba(15, 118, 110, 0.35);
+    }
+
+    .queue-text {
+      max-width: 70%;
+    }
+
+    .queue-title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .queue-sub {
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .queue-time {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* EQ PANEL */
+    .eq-row {
+      display: flex;
+      justify-content: space-around;
+      padding-top: 4px;
+    }
+
+    .eq-band {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .eq-bar {
+      width: 14px;
+      border-radius: 999px;
+      background: rgba(30, 64, 175, 0.7);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .eq-level {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, var(--accent), #38bdf8);
+    }
+
+    .eq-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--muted);
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .preset-pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .preset-pill.active {
+      border-color: rgba(79, 209, 197, 0.8);
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="top-bar">
+      <div class="brand">Echoplayer</div>
+      <div class="status-chip">Session · Swamp-Hop</div>
+    </div>
+
+    <div class="main">
+      <div>
+        <div class="art-block">
+          <div class="art">MOONBALL</div>
+          <div class="meta">
+            <div class="meta-title">Moonball Descent</div>
+            <div class="meta-sub">Powder Peaks · EchoVerse</div>
+          </div>
+        </div>
+
+        <div class="progress">
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+          <div class="progress-times">
+            <span>00:52</span>
+            <span>-03:15</span>
+          </div>
+        </div>
+
+        <div class="transport">
+          <button class="t-btn">⏮</button>
+          <button class="t-btn main">▶</button>
+          <button class="t-btn">⏭</button>
+        </div>
+      </div>
+
+      <div class="tabs-container">
+        <div class="tabs-header">
+          <div class="tab active" data-tab="now">Now</div>
+          <div class="tab" data-tab="queue">Queue</div>
+          <div class="tab" data-tab="eq">EQ</div>
+        </div>
+        <div class="tabs-body">
+          <div class="panel active" id="tab-now">
+            <div class="now-row">
+              <div class="now-text">
+                <div class="now-line">Moonball Descent · Powder Peaks</div>
+                <div class="now-label">Playing from Swamp-Hop Session</div>
+              </div>
+              <span style="font-size: 14px;">★</span>
+            </div>
+            <div class="volume-wrap">
+              <span>VOL</span>
+              <div class="vol-rail">
+                <div class="vol-fill"></div>
+              </div>
+              <span>62%</span>
+            </div>
+          </div>
+
+          <div class="panel" id="tab-queue">
+            <div class="queue-item current">
+              <div class="queue-text">
+                <div class="queue-title">Moonball Descent</div>
+                <div class="queue-sub">Now playing</div>
+              </div>
+              <div class="queue-time">3:59</div>
+            </div>
+            <div class="queue-item">
+              <div class="queue-text">
+                <div class="queue-title">Corner Pocket League Anthem</div>
+                <div class="queue-sub">EchoVerse · Draft</div>
+              </div>
+              <div class="queue-time">4:20</div>
+            </div>
+            <div class="queue-item">
+              <div class="queue-text">
+                <div class="queue-title">EchoStory · Birthday Run</div>
+                <div class="queue-sub">Narrative · Soft mix</div>
+              </div>
+              <div class="queue-time">2:48</div>
+            </div>
+          </div>
+
+          <div class="panel" id="tab-eq">
+            <div class="eq-row">
+              <div class="eq-band">
+                <div class="eq-bar" style="height: 32px;">
+                  <div class="eq-level" style="height: 70%;"></div>
+                </div>
+                <span>Low</span>
+              </div>
+              <div class="eq-band">
+                <div class="eq-bar" style="height: 40px;">
+                  <div class="eq-level" style="height: 60%;"></div>
+                </div>
+                <span>Low-mid</span>
+              </div>
+              <div class="eq-band">
+                <div class="eq-bar" style="height: 46px;">
+                  <div class="eq-level" style="height: 45%;"></div>
+                </div>
+                <span>High-mid</span>
+              </div>
+              <div class="eq-band">
+                <div class="eq-bar" style="height: 36px;">
+                  <div class="eq-level" style="height: 50%;"></div>
+                </div>
+                <span>High</span>
+              </div>
+            </div>
+            <div class="eq-footer">
+              <span>Preset</span>
+              <div>
+                <span class="preset-pill active">Swamp-Hop</span>
+                <span class="preset-pill">Flat</span>
+                <span class="preset-pill">Vocal</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll(".tab");
+    const panels = {
+      now: document.getElementById("tab-now"),
+      queue: document.getElementById("tab-queue"),
+      eq: document.getElementById("tab-eq"),
+    };
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const target = tab.getAttribute("data-tab");
+        tabs.forEach((t) => t.classList.remove("active"));
+        tab.classList.add("active");
+
+        Object.keys(panels).forEach((key) => {
+          panels[key].classList.toggle("active", key === target);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

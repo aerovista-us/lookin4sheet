@@ -37,7 +37,6 @@
       text-align: center;
       min-height: 100vh;
       padding: 1rem;
-      padding-bottom: 380px; /* Space for fixed player hub */
       overflow-x: hidden;
       position: relative;
       font-weight: 400;
@@ -191,7 +190,6 @@
     }
     
     .game-item:hover {
-      transform: scale(1.12) rotate(2deg);
       border-color: var(--primary-cyan);
       box-shadow: 
         0 0 30px rgba(0, 255, 170, 0.6),
@@ -265,13 +263,13 @@
     
     .close-game:hover {
       background: linear-gradient(135deg, rgba(255, 85, 0, 1), rgba(255, 0, 0, 0.9));
-      transform: rotate(90deg) scale(1.1);
+      transform: rotate(90deg);
       box-shadow: 0 6px 20px rgba(255, 85, 0, 0.6);
       border-color: rgba(255, 85, 0, 0.8);
     }
     
     .close-game:active {
-      transform: rotate(90deg) scale(0.95);
+      opacity: 0.8;
     }
     /* Glitch button - now integrated into player */
     .glitch-btn {
@@ -292,7 +290,7 @@
     }
     
     .glitch-btn:active {
-      transform: scale(0.96);
+      opacity: 0.85;
       background: linear-gradient(135deg, rgba(85, 0, 255, 0.4), rgba(0, 255, 170, 0.3));
     }
     /* Glitch effect on album art */
@@ -349,7 +347,6 @@
     }
     
     .album-art:hover {
-      transform: scale(1.03);
       box-shadow: 
         0 0 60px rgba(0, 255, 170, 0.5),
         0 0 120px rgba(85, 0, 255, 0.4),
@@ -389,7 +386,6 @@
     }
     
     .clickable-shit:hover {
-      transform: scale(1.4);
       box-shadow: 
         0 0 40px rgba(255, 0, 170, 1),
         0 0 60px rgba(255, 0, 170, 0.6),
@@ -400,15 +396,22 @@
     /* Settings Menu */
     .settings-menu {
       position: absolute;
-      bottom: 100%;
+      top: calc(100% + 1rem);
       left: 0;
       right: 0;
       width: 100%;
-      max-height: 70vh;
-      margin-bottom: 1rem;
-      background: rgba(11, 11, 12, 0.98);
+      max-height: 60vh;
+      background: 
+        linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04)),
+        radial-gradient(circle at top left, rgba(0, 255, 170, 0.1), transparent 50%);
       -webkit-backdrop-filter: blur(40px);
       backdrop-filter: blur(40px);
+      border: 1px solid rgba(0, 255, 170, 0.25);
+      border-radius: 20px;
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 0 60px rgba(0, 255, 170, 0.05);
+      z-index: 20;
       border: 2px solid rgba(0, 255, 170, 0.4);
       border-radius: 24px;
       z-index: 99;
@@ -668,17 +671,22 @@
     }
     
     .player-hub {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: linear-gradient(180deg, transparent 0%, rgba(11, 11, 12, 0.95) 10%, rgba(11, 11, 12, 0.98) 100%);
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+      background: 
+        linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04)),
+        radial-gradient(circle at top left, rgba(0, 255, 170, 0.1), transparent 50%),
+        radial-gradient(circle at bottom right, rgba(85, 0, 255, 0.1), transparent 50%);
       backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(0, 255, 170, 0.2);
-      padding: 1.5rem 1rem 1rem;
-      z-index: 100;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(0, 255, 170, 0.25);
+      border-radius: 24px;
+      padding: 2rem 1.5rem;
+      z-index: 10;
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 0 60px rgba(0, 255, 170, 0.05);
     }
     
     .player-hub-content {
@@ -711,12 +719,12 @@
         0 0 60px rgba(85, 0, 255, 0.2),
         inset 0 0 40px rgba(0, 255, 170, 0.1);
       cursor: pointer;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: opacity 0.3s ease, border-color 0.3s ease;
       background: linear-gradient(135deg, rgba(0, 255, 170, 0.1), rgba(85, 0, 255, 0.1));
     }
     
     .player-art-section:active {
-      transform: scale(0.98);
+      opacity: 0.9;
     }
     
     .player-art-section img {
@@ -772,7 +780,7 @@
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease;
       -webkit-tap-highlight-color: transparent;
       letter-spacing: 0.02em;
       min-height: 44px;
@@ -786,7 +794,7 @@
     }
     
     .playlist-toggle:active, .settings-toggle:active, .share-toggle:active, .game-toggle:active {
-      transform: scale(0.96);
+      opacity: 0.8;
       background: linear-gradient(135deg, rgba(0, 255, 170, 0.25), rgba(85, 0, 255, 0.2));
     }
     
@@ -796,15 +804,22 @@
     
     .playlist-slideout {
       position: absolute;
-      bottom: 100%;
+      top: calc(100% + 1rem);
       left: 0;
       right: 0;
       width: 100%;
-      max-height: 70vh;
-      margin-bottom: 1rem;
-      background: rgba(11, 11, 12, 0.98);
+      max-height: 60vh;
+      background: 
+        linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04)),
+        radial-gradient(circle at top left, rgba(0, 255, 170, 0.1), transparent 50%);
       -webkit-backdrop-filter: blur(40px);
       backdrop-filter: blur(40px);
+      border: 1px solid rgba(0, 255, 170, 0.25);
+      border-radius: 20px;
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 0 60px rgba(0, 255, 170, 0.05);
+      z-index: 20;
       border: 2px solid rgba(0, 255, 170, 0.4);
       border-radius: 24px;
       z-index: 99;
@@ -900,7 +915,7 @@
     .playlist-item:active {
       background: linear-gradient(90deg, rgba(0, 255, 170, 0.2), rgba(85, 0, 255, 0.15));
       border-color: var(--primary-cyan);
-      transform: scale(0.98);
+      opacity: 0.9;
       box-shadow: 0 2px 12px rgba(0, 255, 170, 0.3);
     }
     
@@ -1367,8 +1382,10 @@
       <canvas id="visualizer"></canvas>
     </div>
 
-    <!-- Playlist Slideout -->
-    <div class="playlist-slideout" id="playlistSlideout">
+    <!-- Player Hub -->
+    <div class="player-hub">
+      <!-- Playlist Slideout -->
+      <div class="playlist-slideout" id="playlistSlideout">
       <div class="playlist-slideout-header">
         <h4 style="color: var(--primary-cyan); margin: 0; font-size: 1rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">🎵 Playlist — 8 Tracks</h4>
         <button class="settings-close" id="closePlaylist">×</button>
@@ -1447,9 +1464,7 @@
         </div>
       </div>
       
-      <!-- Player Hub -->
-      <div class="player-hub">
-        <div class="player-hub-content">
+      <div class="player-hub-content">
         <!-- Header Section with Title and Album Art -->
         <div class="player-header-section">
           <!-- Album Art -->
@@ -1702,8 +1717,13 @@
       currentTrackIndex = index;
       const track = tracks[index];
       clearPendingAutoPlay();
-      audio.src = track.file;
+      
+      // Pause and reset before loading new track
+      const wasPlaying = !audio.paused;
+      audio.pause();
       audio.currentTime = 0;
+      
+      audio.src = track.file;
       audio.load();
       
       // Update playlist UI
@@ -1891,9 +1911,13 @@
 
     // Progress bar click
     progressBar.addEventListener('click', (e) => {
+      if (!isFinite(audio.duration) || audio.duration <= 0) return;
       const rect = progressBar.getBoundingClientRect();
       const percent = (e.clientX - rect.left) / rect.width;
-      audio.currentTime = percent * audio.duration;
+      const newTime = percent * audio.duration;
+      if (isFinite(newTime) && newTime >= 0) {
+        audio.currentTime = newTime;
+      }
     });
 
     // Volume control
@@ -2083,34 +2107,36 @@
     
     // Share functionality
     const shareToggle = document.getElementById('shareToggle');
-    shareToggle.addEventListener('click', async () => {
-      const track = tracks[currentTrackIndex];
-      const shareData = {
-        title: `${track.title} - BillyGoat`,
-        text: `Listen to "${track.title}" by BillyGoat`,
-        url: window.location.href
-      };
-      
-      try {
-        if (navigator.share) {
-          await navigator.share(shareData);
-        } else {
-          // Fallback: copy to clipboard
-          await navigator.clipboard.writeText(window.location.href);
-          alert('Link copied to clipboard!');
-        }
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          // Fallback: copy to clipboard
-          try {
+    if (shareToggle) {
+      shareToggle.addEventListener('click', async () => {
+        const track = tracks[currentTrackIndex];
+        const shareData = {
+          title: `${track.title} - BillyGoat`,
+          text: `Listen to "${track.title}" by BillyGoat`,
+          url: window.location.href
+        };
+        
+        try {
+          if (navigator.share) {
+            await navigator.share(shareData);
+          } else {
+            // Fallback: copy to clipboard
             await navigator.clipboard.writeText(window.location.href);
             alert('Link copied to clipboard!');
-          } catch (e) {
-            console.error('Share failed:', e);
+          }
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            // Fallback: copy to clipboard
+            try {
+              await navigator.clipboard.writeText(window.location.href);
+              alert('Link copied to clipboard!');
+            } catch (e) {
+              console.error('Share failed:', e);
+            }
           }
         }
-      }
-    });
+      });
+    }
     
     // Update crossfade status
     const crossfadeStatus = document.getElementById('crossfadeStatus');
@@ -2125,10 +2151,7 @@
     const playerArt = document.getElementById('playerArt');
     playerArtSection.addEventListener('click', () => {
       // Could expand to full screen or show album art modal
-      playerArtSection.style.transform = 'scale(1.1)';
-      setTimeout(() => {
-        playerArtSection.style.transform = 'scale(1)';
-      }, 200);
+      // Visual feedback handled by CSS :active state
     });
     
     // Load first track
