@@ -422,28 +422,32 @@
     /* Visualizer mode selector */
     /* Settings Menu */
     .settings-menu {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%) translateY(100%);
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      right: 0;
       width: 100%;
-      max-width: 600px;
       max-height: 70vh;
+      margin-bottom: 1rem;
       background: rgba(11, 11, 12, 0.98);
       -webkit-backdrop-filter: blur(40px);
       backdrop-filter: blur(40px);
       border: 2px solid rgba(0, 255, 170, 0.4);
-      border-bottom: none;
-      border-radius: 24px 24px 0 0;
+      border-radius: 24px;
       z-index: 99;
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateY(100%);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.7);
     }
     
     .settings-menu.open {
-      transform: translateX(-50%) translateY(0);
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
     }
     
     .settings-header {
@@ -682,20 +686,17 @@
     /* Mobile-First Player Container */
     /* Player Hub - Central Control Board */
     .player-container {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
+      position: relative;
       width: 100%;
       max-width: 600px;
+      margin: 2rem auto;
       background: rgba(11, 11, 12, 0.98);
       -webkit-backdrop-filter: blur(40px);
       backdrop-filter: blur(40px);
       border: 2px solid rgba(0, 255, 170, 0.4);
-      border-bottom: none;
-      border-radius: 24px 24px 0 0;
+      border-radius: 24px;
       padding: 1rem 1.25rem;
-      box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.7);
       z-index: 100;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       overflow: visible;
@@ -799,28 +800,32 @@
     }
     
     .playlist-slideout {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%) translateY(100%);
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      right: 0;
       width: 100%;
-      max-width: 600px;
       max-height: 70vh;
+      margin-bottom: 1rem;
       background: rgba(11, 11, 12, 0.98);
       -webkit-backdrop-filter: blur(40px);
       backdrop-filter: blur(40px);
       border: 2px solid rgba(0, 255, 170, 0.4);
-      border-bottom: none;
-      border-radius: 24px 24px 0 0;
+      border-radius: 24px;
       z-index: 99;
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateY(100%);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.7);
     }
     
     .playlist-slideout.open {
-      transform: translateX(-50%) translateY(0);
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
     }
     
     .playlist-slideout-header {
@@ -1212,26 +1217,18 @@
     @media (max-width: 639px) {
       .player-container {
         max-width: 100%;
-        border-radius: 0;
-        left: 0;
-        transform: none;
+        margin: 1rem auto;
+        border-radius: 16px;
+        padding: 0.875rem 1rem;
       }
       
       .playlist-slideout, .settings-menu {
-        max-width: 100%;
-        left: 0;
-        transform: translateY(100%);
-        border-radius: 0;
-      }
-      
-      .playlist-slideout.open, .settings-menu.open {
-        transform: translateY(0);
+        border-radius: 16px;
       }
       
       .player-hub-content {
         grid-template-columns: auto 1fr;
         gap: 0.75rem;
-        padding: 0.875rem 1rem;
       }
       
       .player-art-section {
@@ -1422,10 +1419,44 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Player Hub - Central Control Board -->
-    <div class="player-container" id="playerContainer">
+      </div>
+      
+      <!-- Settings Menu -->
+      <div class="settings-menu" id="settingsMenu">
+        <div class="settings-header">
+          <h3>⚙️ Settings</h3>
+          <button class="settings-close" id="closeSettings">×</button>
+        </div>
+        <div class="settings-content">
+          <div class="settings-section">
+            <h4>Playback</h4>
+            <div class="settings-control">
+              <label for="speedSlider">Playback Speed</label>
+              <input type="range" id="speedSlider" min="0.5" max="2" step="0.1" value="1" aria-label="Playback speed">
+              <div class="value-display" id="speedValue">1.0x</div>
+            </div>
+            <div class="settings-control">
+              <label for="bassSlider">Bass Boost</label>
+              <input type="range" id="bassSlider" min="0" max="20" step="1" value="0" aria-label="Bass boost">
+              <div class="value-display" id="bassValue">0dB</div>
+            </div>
+            <div class="settings-control">
+              <button id="crossfadeBtn" class="control-btn" style="width: 100%; padding: 0.75rem; margin-top: 0.5rem;">🎚️ Crossfade: <span id="crossfadeStatus">Off</span></button>
+            </div>
+          </div>
+          
+          <div class="settings-section">
+            <h4>Visualizer Style</h4>
+            <div class="visualizer-modes">
+              <button class="mode-btn active" data-mode="bars">Bars</button>
+              <button class="mode-btn" data-mode="circle">Circle</button>
+              <button class="mode-btn" data-mode="waveform">Waveform</button>
+              <button class="mode-btn" data-mode="particles">Particles</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <div class="player-hub-content">
         <!-- Album Art Section -->
         <div class="player-art-section" id="playerArtSection">
@@ -1475,42 +1506,6 @@
     </div>
 
     <audio id="audioPlayer" preload="metadata"></audio>
-    
-    <!-- Settings Menu -->
-    <div class="settings-menu" id="settingsMenu">
-      <div class="settings-header">
-        <h3>⚙️ Settings</h3>
-        <button class="settings-close" id="closeSettings">×</button>
-      </div>
-      <div class="settings-content">
-        <div class="settings-section">
-          <h4>Playback</h4>
-          <div class="settings-control">
-            <label for="speedSlider">Playback Speed</label>
-            <input type="range" id="speedSlider" min="0.5" max="2" step="0.1" value="1" aria-label="Playback speed">
-            <div class="value-display" id="speedValue">1.0x</div>
-          </div>
-          <div class="settings-control">
-            <label for="bassSlider">Bass Boost</label>
-            <input type="range" id="bassSlider" min="0" max="20" step="1" value="0" aria-label="Bass boost">
-            <div class="value-display" id="bassValue">0dB</div>
-          </div>
-          <div class="settings-control">
-            <button id="crossfadeBtn" class="control-btn" style="width: 100%; padding: 0.75rem; margin-top: 0.5rem;">🎚️ Crossfade: <span id="crossfadeStatus">Off</span></button>
-          </div>
-        </div>
-        
-        <div class="settings-section">
-          <h4>Visualizer Style</h4>
-          <div class="visualizer-modes">
-            <button class="mode-btn active" data-mode="bars">Bars</button>
-            <button class="mode-btn" data-mode="circle">Circle</button>
-            <button class="mode-btn" data-mode="waveform">Waveform</button>
-            <button class="mode-btn" data-mode="particles">Particles</button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- Game Overlay -->
