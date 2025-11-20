@@ -1143,17 +1143,33 @@
           <div class="playlist-item-title">Ripples Wide</div>
           <div class="playlist-item-subtitle">BillyGoat · Swamp-Hop / Glitch Bounce</div>
         </div>
-        <div class="playlist-item highlight-track" data-track="7">
-          <div class="playlist-item-title">🔥 Goddamn Connector</div>
+        <div class="playlist-item" data-track="7">
+          <div class="playlist-item-title">Goddamn Connector</div>
           <div class="playlist-item-subtitle">BillyGoat · Swamp-Hop / Glitch Bounce</div>
         </div>
       </div>
 
       <div class="control-buttons">
+        <button id="shuffleBtn" class="control-btn" title="Shuffle">🔀</button>
         <button id="prevBtn">⏮ Prev</button>
         <button id="playPauseBtn" class="play-btn">▶ Play</button>
         <button id="stopBtn">⏹ Stop</button>
         <button id="nextBtn">Next ⏭</button>
+        <button id="repeatBtn" class="control-btn" title="Repeat">🔁</button>
+      </div>
+      
+      <div class="advanced-controls" style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin: 1rem 0; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <label for="speedSlider" style="font-size: 0.875rem; color: var(--text-muted);">Speed:</label>
+          <input type="range" id="speedSlider" min="0.5" max="2" step="0.1" value="1" aria-label="Playback speed" style="width: 100px; height: 6px;">
+          <span id="speedValue" style="min-width: 40px; font-size: 0.875rem; color: var(--primary-cyan); font-weight: 600;">1.0x</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <label for="bassSlider" style="font-size: 0.875rem; color: var(--text-muted);">Bass:</label>
+          <input type="range" id="bassSlider" min="0" max="20" step="1" value="0" aria-label="Bass boost" style="width: 100px; height: 6px;">
+          <span id="bassValue" style="min-width: 40px; font-size: 0.875rem; color: var(--primary-cyan); font-weight: 600;">0dB</span>
+        </div>
+        <button id="crossfadeBtn" class="control-btn" title="Crossfade" style="padding: 0.5rem 1rem; font-size: 0.875rem;">🎚️ Crossfade</button>
       </div>
       
       <div class="progress-container">
@@ -1167,8 +1183,8 @@
       </div>
 
       <div class="volume-control">
-        <span>🔊</span>
-        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100">
+        <label for="volumeSlider" style="font-size: 1.5rem; filter: drop-shadow(0 0 5px rgba(0, 255, 170, 0.5));">🔊</label>
+        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100" aria-label="Volume control">
         <span id="volumeValue">100%</span>
       </div>
     </div>
@@ -1181,8 +1197,13 @@
     <div class="game-container">
       <button class="close-game" id="closeGame">×</button>
       <h2 class="game-title">🎯 Find the Sh!t!</h2>
-      <p>Click on the hidden items before time runs out!</p>
-      <div class="game-score">Score: <span id="gameScore">0</span> | Time: <span id="gameTime">30</span>s</div>
+      <p id="gameDifficulty" style="margin: 0.5rem 0; color: var(--primary-cyan); font-weight: 600;">Level 1 - MEDIUM</p>
+      <div class="game-score">Score: <span id="gameScore">0</span> | Best: <span id="bestScore">0</span> | Time: <span id="gameTime">30</span>s</div>
+      <div style="display: flex; gap: 0.5rem; justify-content: center; margin: 1rem 0;">
+        <button class="mode-btn" data-difficulty="easy" style="font-size: 0.75rem; padding: 0.5rem 1rem;">Easy</button>
+        <button class="mode-btn active" data-difficulty="medium" style="font-size: 0.75rem; padding: 0.5rem 1rem;">Medium</button>
+        <button class="mode-btn" data-difficulty="hard" style="font-size: 0.75rem; padding: 0.5rem 1rem;">Hard</button>
+      </div>
       <div class="game-grid" id="gameGrid"></div>
       <button class="glitch-btn" id="restartGame" style="display: none;">Play Again</button>
     </div>
@@ -1307,27 +1328,52 @@
     let dataArray;
     let source;
     let gainNode;
+    let bassBoostNode;
+    let lowpassFilter;
+    let highpassFilter;
     let visualizerMode = 'bars';
-    let smoothingTimeConstant = 0.8; // Smoother visualization
+    let smoothingTimeConstant = 0.8;
+    let isShuffled = false;
+    let isRepeating = false;
+    let isCrossfading = false;
+    let playbackOrder = [];
 
     function initAudioContext() {
       if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)({
-          sampleRate: 48000 // Higher sample rate for better quality
+          sampleRate: 48000
         });
         
-        // Create gain node for better audio control
+        // Create audio processing chain
         gainNode = audioContext.createGain();
         gainNode.gain.value = 1.0;
         
+        // Bass boost using biquad filter
+        bassBoostNode = audioContext.createBiquadFilter();
+        bassBoostNode.type = 'lowshelf';
+        bassBoostNode.frequency.value = 200;
+        bassBoostNode.gain.value = 0;
+        
+        // Lowpass and highpass for better EQ
+        lowpassFilter = audioContext.createBiquadFilter();
+        lowpassFilter.type = 'lowpass';
+        lowpassFilter.frequency.value = 20000;
+        
+        highpassFilter = audioContext.createBiquadFilter();
+        highpassFilter.type = 'highpass';
+        highpassFilter.frequency.value = 20;
+        
         analyser = audioContext.createAnalyser();
-        analyser.fftSize = 2048; // Higher FFT size for better frequency resolution
+        analyser.fftSize = 4096; // Even higher for better resolution
         analyser.smoothingTimeConstant = smoothingTimeConstant;
         analyser.minDecibels = -90;
         analyser.maxDecibels = -10;
         
         source = audioContext.createMediaElementSource(audio);
-        source.connect(gainNode);
+        source.connect(highpassFilter);
+        highpassFilter.connect(bassBoostNode);
+        bassBoostNode.connect(lowpassFilter);
+        lowpassFilter.connect(gainNode);
         gainNode.connect(analyser);
         analyser.connect(audioContext.destination);
         
@@ -1406,36 +1452,123 @@
 
     // Previous
     prevBtn.addEventListener('click', () => {
-      const newIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
-      const wasPlaying = !audio.paused;
-      loadTrack(newIndex);
-      if (wasPlaying) {
-        resumePlaybackAfterTrackChange();
+      let newIndex;
+      if (isShuffled && playbackOrder.length > 0) {
+        const currentPos = playbackOrder.indexOf(currentTrackIndex);
+        if (currentPos > 0) {
+          newIndex = playbackOrder[currentPos - 1];
+        } else {
+          newIndex = playbackOrder[playbackOrder.length - 1];
+        }
       } else {
-        clearPendingAutoPlay();
-        updatePlayPauseButton(false);
+        newIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+      }
+      const wasPlaying = !audio.paused;
+      if (isCrossfading && wasPlaying) {
+        crossfadeToTrack(newIndex);
+      } else {
+        loadTrack(newIndex);
+        if (wasPlaying) {
+          resumePlaybackAfterTrackChange();
+        } else {
+          clearPendingAutoPlay();
+          updatePlayPauseButton(false);
+        }
       }
     });
 
     // Next
     nextBtn.addEventListener('click', () => {
-      const newIndex = (currentTrackIndex + 1) % tracks.length;
-      const wasPlaying = !audio.paused;
-      loadTrack(newIndex);
-      if (wasPlaying) {
-        resumePlaybackAfterTrackChange();
+      let newIndex;
+      if (isShuffled && playbackOrder.length > 0) {
+        const currentPos = playbackOrder.indexOf(currentTrackIndex);
+        if (currentPos < playbackOrder.length - 1) {
+          newIndex = playbackOrder[currentPos + 1];
+        } else {
+          newIndex = playbackOrder[0];
+        }
       } else {
-        clearPendingAutoPlay();
-        updatePlayPauseButton(false);
+        newIndex = (currentTrackIndex + 1) % tracks.length;
+      }
+      const wasPlaying = !audio.paused;
+      if (isCrossfading && wasPlaying) {
+        crossfadeToTrack(newIndex);
+      } else {
+        loadTrack(newIndex);
+        if (wasPlaying) {
+          resumePlaybackAfterTrackChange();
+        } else {
+          clearPendingAutoPlay();
+          updatePlayPauseButton(false);
+        }
       }
     });
 
-    // Auto-play next track
+    // Auto-play next track with crossfade support
     audio.addEventListener('ended', () => {
-      const newIndex = (currentTrackIndex + 1) % tracks.length;
-      loadTrack(newIndex);
-      audio.play();
+      if (isRepeating) {
+        loadTrack(currentTrackIndex);
+        audio.play();
+      } else {
+        let newIndex;
+        if (isShuffled && playbackOrder.length > 0) {
+          playbackOrder.shift();
+          if (playbackOrder.length === 0) {
+            generateShuffleOrder();
+          }
+          newIndex = playbackOrder[0];
+        } else {
+          newIndex = (currentTrackIndex + 1) % tracks.length;
+        }
+        
+        if (isCrossfading) {
+          crossfadeToTrack(newIndex);
+        } else {
+          loadTrack(newIndex);
+          audio.play();
+        }
+      }
     });
+    
+    function generateShuffleOrder() {
+      playbackOrder = Array.from({length: tracks.length}, (_, i) => i);
+      for (let i = playbackOrder.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [playbackOrder[i], playbackOrder[j]] = [playbackOrder[j], playbackOrder[i]];
+      }
+    }
+    
+    function crossfadeToTrack(newIndex) {
+      const fadeDuration = 2; // seconds
+      const fadeSteps = 20;
+      const stepDuration = (fadeDuration * 1000) / fadeSteps;
+      let currentStep = 0;
+      
+      const fadeOut = setInterval(() => {
+        currentStep++;
+        const volume = 1 - (currentStep / fadeSteps);
+        if (gainNode) gainNode.gain.value = volume;
+        
+        if (currentStep >= fadeSteps) {
+          clearInterval(fadeOut);
+          loadTrack(newIndex);
+          gainNode.gain.value = 0;
+          audio.play();
+          
+          let fadeInStep = 0;
+          const fadeIn = setInterval(() => {
+            fadeInStep++;
+            const volume = fadeInStep / fadeSteps;
+            if (gainNode) gainNode.gain.value = volume;
+            
+            if (fadeInStep >= fadeSteps) {
+              clearInterval(fadeIn);
+              if (gainNode) gainNode.gain.value = 1.0;
+            }
+          }, stepDuration);
+        }
+      }, stepDuration);
+    }
 
     // Progress bar click
     progressBar.addEventListener('click', (e) => {
@@ -1464,6 +1597,97 @@
       }
     });
 
+    // Shuffle button
+    const shuffleBtn = document.getElementById('shuffleBtn');
+    shuffleBtn.addEventListener('click', () => {
+      isShuffled = !isShuffled;
+      shuffleBtn.style.opacity = isShuffled ? '1' : '0.5';
+      if (isShuffled) {
+        generateShuffleOrder();
+        const currentPos = playbackOrder.indexOf(currentTrackIndex);
+        if (currentPos > -1) {
+          playbackOrder.splice(currentPos, 1);
+          playbackOrder.unshift(currentTrackIndex);
+        }
+      }
+    });
+    
+    // Repeat button
+    const repeatBtn = document.getElementById('repeatBtn');
+    repeatBtn.addEventListener('click', () => {
+      isRepeating = !isRepeating;
+      repeatBtn.style.opacity = isRepeating ? '1' : '0.5';
+      repeatBtn.textContent = isRepeating ? '🔂' : '🔁';
+    });
+    
+    // Playback speed control
+    const speedSlider = document.getElementById('speedSlider');
+    const speedValue = document.getElementById('speedValue');
+    speedSlider.addEventListener('input', (e) => {
+      const speed = parseFloat(e.target.value);
+      audio.playbackRate = speed;
+      speedValue.textContent = speed.toFixed(1) + 'x';
+    });
+    
+    // Bass boost control
+    const bassSlider = document.getElementById('bassSlider');
+    const bassValue = document.getElementById('bassValue');
+    bassSlider.addEventListener('input', (e) => {
+      const bass = parseInt(e.target.value);
+      if (bassBoostNode) {
+        bassBoostNode.gain.value = bass;
+      }
+      bassValue.textContent = (bass > 0 ? '+' : '') + bass + 'dB';
+    });
+    
+    // Crossfade toggle
+    const crossfadeBtn = document.getElementById('crossfadeBtn');
+    crossfadeBtn.addEventListener('click', () => {
+      isCrossfading = !isCrossfading;
+      crossfadeBtn.style.opacity = isCrossfading ? '1' : '0.5';
+    });
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT') return;
+      
+      switch(e.key) {
+        case ' ': // Spacebar
+          e.preventDefault();
+          if (audio.paused) audio.play();
+          else audio.pause();
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          prevBtn.click();
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          nextBtn.click();
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          volumeSlider.value = Math.min(100, parseInt(volumeSlider.value) + 10);
+          volumeSlider.dispatchEvent(new Event('input'));
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          volumeSlider.value = Math.max(0, parseInt(volumeSlider.value) - 10);
+          volumeSlider.dispatchEvent(new Event('input'));
+          break;
+        case 's':
+        case 'S':
+          e.preventDefault();
+          shuffleBtn.click();
+          break;
+        case 'r':
+        case 'R':
+          e.preventDefault();
+          repeatBtn.click();
+          break;
+      }
+    });
+    
     // Load first track
     loadTrack(0);
 
@@ -1721,27 +1945,45 @@
     let gameTimer;
     let foundItems = [];
     let gameActive = false;
+    let gameDifficulty = 'medium'; // easy, medium, hard
+    let gameLevel = 1;
+    let bestScore = localStorage.getItem('bestScore') ? parseInt(localStorage.getItem('bestScore')) : 0;
 
-    const emojis = ['💩', '🎵', '🎧', '🔥', '⚡', '🌟', '💎', '🎮', '🎯', '🚀', '💫', '✨', '🎨', '🎪', '🎭', '🎬'];
+    const emojis = ['💩', '🎵', '🎧', '🔥', '⚡', '🌟', '💎', '🎮', '🎯', '🚀', '💫', '✨', '🎨', '🎪', '🎭', '🎬', '🎲', '🎸', '🎹', '🥁'];
     const targetEmoji = '💩';
+
+    function getGameConfig() {
+      const configs = {
+        easy: { gridSize: 12, targetCount: 2, time: 45, points: 10 },
+        medium: { gridSize: 16, targetCount: 3, time: 30, points: 15 },
+        hard: { gridSize: 25, targetCount: 5, time: 20, points: 25 }
+      };
+      return configs[gameDifficulty];
+    }
 
     function startGame() {
       gameActive = true;
       gameScoreValue = 0;
-      gameTimeLeft = 30;
+      const config = getGameConfig();
+      gameTimeLeft = config.time;
       foundItems = [];
       gameScore.textContent = gameScoreValue;
       gameTime.textContent = gameTimeLeft;
       gameGrid.innerHTML = '';
       restartGame.style.display = 'none';
-
-      // Create grid
-      const items = [];
-      const targetCount = 3;
       
+      // Update difficulty display
+      const difficultyDisplay = document.getElementById('gameDifficulty');
+      if (difficultyDisplay) {
+        difficultyDisplay.textContent = `Level ${gameLevel} - ${gameDifficulty.toUpperCase()}`;
+      }
+
+      // Create grid based on difficulty
+      const items = [];
       const nonTargetEmojis = emojis.filter(e => e !== targetEmoji);
-      for (let i = 0; i < 16; i++) {
-        items.push(i < targetCount ? targetEmoji : nonTargetEmojis[Math.floor(Math.random() * nonTargetEmojis.length)]);
+      
+      for (let i = 0; i < config.gridSize; i++) {
+        items.push(i < config.targetCount ? targetEmoji : nonTargetEmojis[Math.floor(Math.random() * nonTargetEmojis.length)]);
       }
       
       // Shuffle
@@ -1775,20 +2017,41 @@
 
       const emoji = item.dataset.emoji;
       item.textContent = emoji;
+      const config = getGameConfig();
 
       if (emoji === targetEmoji) {
         item.classList.add('found');
         foundItems.push(item.dataset.index);
-        gameScoreValue += 10;
+        gameScoreValue += config.points;
+        gameScoreValue += Math.floor(gameTimeLeft * 0.5); // Time bonus
         gameScore.textContent = gameScoreValue;
         
-        if (foundItems.length === 3) {
-          gameScoreValue += gameTimeLeft * 5;
+        // Play success sound effect (visual feedback)
+        item.style.animation = 'foundPulse 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        
+        if (foundItems.length === config.targetCount) {
+          gameScoreValue += gameTimeLeft * 5; // Completion bonus
           gameScore.textContent = gameScoreValue;
+          
+          // Check for new best score
+          if (gameScoreValue > bestScore) {
+            bestScore = gameScoreValue;
+            localStorage.setItem('bestScore', bestScore);
+          }
+          
+          // Level up
+          gameLevel++;
+          if (gameLevel % 3 === 0 && gameDifficulty !== 'hard') {
+            gameDifficulty = gameDifficulty === 'easy' ? 'medium' : 'hard';
+            gameLevel = 1;
+          }
+          
           endGame(true);
         }
       } else {
         item.classList.add('wrong');
+        gameScoreValue = Math.max(0, gameScoreValue - 5); // Penalty
+        gameScore.textContent = gameScoreValue;
         setTimeout(() => {
           item.textContent = '?';
           item.classList.remove('wrong');
@@ -1806,10 +2069,18 @@
           item.textContent = item.dataset.emoji;
         }
       });
+      
+      const bestScoreEl = document.getElementById('bestScore');
+      if (bestScoreEl) {
+        bestScoreEl.textContent = bestScore;
+      }
 
       if (won) {
         setTimeout(() => {
-          alert(`🎉 You won! Final Score: ${gameScoreValue}`);
+          const message = gameScoreValue > bestScore 
+            ? `🎉 NEW RECORD! Score: ${gameScoreValue} | Level ${gameLevel}`
+            : `🎉 You won! Score: ${gameScoreValue} | Level ${gameLevel}`;
+          alert(message);
           restartGame.style.display = 'block';
         }, 500);
       } else {
@@ -1818,6 +2089,22 @@
           restartGame.style.display = 'block';
         }, 500);
       }
+    }
+    
+    // Difficulty selector
+    document.querySelectorAll('[data-difficulty]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-difficulty]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        gameDifficulty = btn.dataset.difficulty;
+        gameLevel = 1;
+      });
+    });
+    
+    // Initialize best score display
+    const bestScoreEl = document.getElementById('bestScore');
+    if (bestScoreEl) {
+      bestScoreEl.textContent = bestScore;
     }
 
     gameBtn.addEventListener('click', () => {
