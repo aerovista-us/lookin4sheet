@@ -617,46 +617,30 @@
     }
     .playlist-container {
       margin: 1.5rem 0;
-      padding: 1.25rem;
-      background: rgba(0, 0, 0, 0.4);
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.5);
       border-radius: 16px;
-      border: 1px solid rgba(0, 255, 170, 0.25);
-      max-height: 400px;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: var(--primary-cyan) rgba(0, 0, 0, 0.3);
-    }
-    
-    .playlist-container::-webkit-scrollbar {
-      width: 8px;
-    }
-    
-    .playlist-container::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 10px;
-    }
-    
-    .playlist-container::-webkit-scrollbar-thumb {
-      background: linear-gradient(180deg, var(--primary-cyan), var(--primary-purple));
-      border-radius: 10px;
       border: 1px solid rgba(0, 255, 170, 0.3);
-    }
-    
-    .playlist-container::-webkit-scrollbar-thumb:hover {
-      background: linear-gradient(180deg, var(--primary-cyan), var(--primary-pink));
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 0.75rem;
+      max-height: none;
+      overflow: visible;
     }
     
     .playlist-item {
-      padding: 1rem 1.25rem;
-      margin: 0.75rem 0;
-      background: linear-gradient(90deg, rgba(0, 255, 170, 0.08), rgba(85, 0, 255, 0.05));
-      border: 1px solid rgba(0, 255, 170, 0.2);
-      border-radius: 12px;
+      padding: 0.875rem 1rem;
+      background: linear-gradient(135deg, rgba(0, 255, 170, 0.1), rgba(85, 0, 255, 0.08));
+      border: 1.5px solid rgba(0, 255, 170, 0.25);
+      border-radius: 10px;
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       text-align: left;
       position: relative;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 70px;
     }
     
     .playlist-item::before {
@@ -695,18 +679,52 @@
       transform: scaleY(1);
     }
     
+    .playlist-item.highlight-track {
+      border-color: rgba(255, 0, 170, 0.5) !important;
+      background: linear-gradient(135deg, rgba(255, 0, 170, 0.2), rgba(85, 0, 255, 0.15)) !important;
+      box-shadow: 0 0 15px rgba(255, 0, 170, 0.3);
+    }
+    
+    .playlist-item.highlight-track .playlist-item-title {
+      color: #ff00aa !important;
+      text-shadow: 0 0 10px rgba(255, 0, 170, 0.6);
+    }
+    
+    .playlist-item.highlight-track:hover {
+      border-color: rgba(255, 0, 170, 0.7) !important;
+      box-shadow: 0 0 25px rgba(255, 0, 170, 0.5);
+    }
+    
     .playlist-item-title {
       font-weight: 600;
       color: var(--primary-cyan);
-      margin-bottom: 0.35rem;
-      font-size: 1rem;
+      margin-bottom: 0.25rem;
+      font-size: 0.95rem;
       letter-spacing: -0.01em;
+      line-height: 1.3;
     }
     
     .playlist-item-subtitle {
-      font-size: 0.875rem;
+      font-size: 0.75rem;
       color: var(--text-muted);
       font-weight: 400;
+      opacity: 0.8;
+    }
+    
+    .playlist-item::after {
+      content: '#' attr(data-track);
+      position: absolute;
+      top: 0.5rem;
+      right: 0.75rem;
+      font-size: 0.7rem;
+      color: rgba(0, 255, 170, 0.5);
+      font-weight: 700;
+      opacity: 0.6;
+    }
+    
+    .playlist-item.highlight-track::after {
+      color: rgba(255, 0, 170, 0.7);
+      opacity: 0.8;
     }
     .audio-controls {
       width: 100%;
@@ -963,7 +981,22 @@
       }
       
       .playlist-container {
-        max-height: 300px;
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        padding: 1rem;
+      }
+      
+      .playlist-item {
+        min-height: 60px;
+        padding: 0.75rem;
+      }
+      
+      .playlist-item-title {
+        font-size: 0.875rem;
+      }
+      
+      .playlist-item-subtitle {
+        font-size: 0.7rem;
       }
       
       .volume-slider {
@@ -1002,8 +1035,8 @@
     </div>
 
     <div class="player-container">
+      <h4 style="color: var(--primary-cyan); margin-top: 0; margin-bottom: 1.5rem; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-shadow: 0 0 15px rgba(0, 255, 170, 0.4); text-align: center;">🎵 Playlist — 8 Tracks</h4>
       <div class="playlist-container">
-        <h4 style="color: var(--primary-cyan); margin-top: 0; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; text-shadow: 0 0 15px rgba(0, 255, 170, 0.4);">Playlist</h4>
         <div class="playlist-item active" data-track="0">
           <div class="playlist-item-title">Lookin' for Sh!t</div>
           <div class="playlist-item-subtitle">BillyGoat · Swamp-Hop / Glitch Bounce</div>
@@ -1032,8 +1065,8 @@
           <div class="playlist-item-title">Ripples Wide</div>
           <div class="playlist-item-subtitle">BillyGoat · Swamp-Hop / Glitch Bounce</div>
         </div>
-        <div class="playlist-item" data-track="7">
-          <div class="playlist-item-title">Goddamn Connector</div>
+        <div class="playlist-item highlight-track" data-track="7">
+          <div class="playlist-item-title">🔥 Goddamn Connector</div>
           <div class="playlist-item-subtitle">BillyGoat · Swamp-Hop / Glitch Bounce</div>
         </div>
       </div>
