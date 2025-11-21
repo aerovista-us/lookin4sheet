@@ -1224,11 +1224,16 @@
         max-width: 100%;
         margin: 1rem auto;
         border-radius: 16px;
-        padding: 0.875rem 1rem;
+        padding: 0.5rem;
       }
       
       .playlist-slideout, .settings-menu {
         border-radius: 16px;
+      }
+      
+      .player-hub {
+        padding: 0.5rem;
+        margin: 0 auto 1rem;
       }
       
       .player-hub-content {
@@ -1236,9 +1241,27 @@
         gap: 0.75rem;
       }
       
+      .player-header-section {
+        gap: 0.75rem;
+      }
+      
       .player-art-section {
-        width: 64px;
-        height: 64px;
+        width: 100%;
+        max-width: min(90vw, 400px);
+        aspect-ratio: 1;
+        border-width: 1.5px;
+        border-radius: 12px;
+        margin: 0 auto;
+        box-shadow: 
+          0 4px 16px rgba(0, 255, 170, 0.25),
+          0 0 40px rgba(85, 0, 255, 0.15),
+          inset 0 0 30px rgba(0, 255, 170, 0.08);
+      }
+      
+      .player-art-section img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
       }
       
       .player-title {
@@ -1339,7 +1362,11 @@
     
     @media (max-width: 639px) {
       body {
-        padding: 1rem 0.75rem;
+        padding: 0.5rem;
+      }
+      
+      .container {
+        padding-bottom: 100px;
       }
       
       h1 {
@@ -1354,7 +1381,7 @@
       
       .album-art-wrapper {
         margin: 1.5rem auto;
-        padding: 12px;
+        padding: 8px;
       }
       
       .album-art {
@@ -1366,6 +1393,12 @@
       
       .visualizer-container {
         margin: 1.25rem auto;
+      }
+      
+      .clickable-shit {
+        width: 32px;
+        height: 32px;
+        border-width: 2px;
       }
     }
   </style>
