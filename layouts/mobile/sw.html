@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mobile Player — Card Switch</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #020617;
+      --panel: #020617;
+      --accent: #4fd1c5;
+      --accent-soft: rgba(79, 209, 197, 0.16);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: rgba(55, 65, 81, 0.9);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #111827 0, #020617 60%);
+      color: var(--text);
+    }
+
+    .shell {
+      height: 100vh;
+      max-height: 100vh;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* HEADER */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+    }
+
+    .brand {
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .session-tag {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    /* TITLE + TABS */
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2px;
+    }
+
+    .track-main {
+      max-width: 60%;
+    }
+
+    .track-title {
+      font-size: 16px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .track-sub {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tab-chips {
+      display: inline-flex;
+      padding: 2px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(31, 41, 55, 1);
+      gap: 2px;
+    }
+
+    .chip {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 4px 8px;
+      border-radius: 999px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .chip.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* MAIN AREA */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    /* CARD AREA */
+    .card-wrap {
+      margin-top: 6px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .card {
+      border-radius: 20px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid var(--border);
+      box-shadow:
+        0 10px 26px rgba(0, 0, 0, 0.9),
+        0 0 18px rgba(15, 23, 42, 0.8);
+      padding: 10px;
+      display: none;
+    }
+
+    .card.active {
+      display: block;
+    }
+
+    /* NOW CARD */
+    .now-top {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .thumb-art {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      padding: 2px;
+      background: conic-gradient(
+        from 200deg,
+        rgba(79, 209, 197, 0.7),
+        rgba(56, 189, 248, 0.3),
+        rgba(244, 114, 182, 0.35),
+        rgba(79, 209, 197, 0.7)
+      );
+      box-shadow: 0 0 14px rgba(79, 209, 197, 0.4);
+      flex-shrink: 0;
+    }
+
+    .thumb-core {
+      width: 100%;
+      height: 100%;
+      border-radius: 14px;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.14), transparent 55%),
+        linear-gradient(135deg, #020617, #020617);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .now-meta {
+      flex: 1;
+    }
+
+    .now-line {
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .now-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .tags-row {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .tag-pill {
+      padding: 3px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+    }
+
+    /* QUEUE CARD */
+    .queue-list {
+      margin-top: 2px;
+      font-size: 12px;
+    }
+
+    .queue-item {
+      padding: 6px 4px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3px;
+      cursor: pointer;
+    }
+
+    .queue-item.current {
+      background: var(--accent-soft);
+      border: 1px solid rgba(79, 209, 197, 0.8);
+    }
+
+    .queue-text {
+      max-width: 72%;
+    }
+
+    .queue-title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .queue-sub {
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .queue-time {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* EQ CARD */
+    .eq-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .eq-bands {
+      display: flex;
+      justify-content: space-around;
+      padding-top: 4px;
+    }
+
+    .eq-band {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .eq-bar {
+      width: 16px;
+      border-radius: 999px;
+      background: rgba(30, 64, 175, 0.7);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .eq-level {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, var(--accent), #38bdf8);
+    }
+
+    .eq-footer {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .preset-pill {
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+    }
+
+    .preset-pill.active {
+      border-color: rgba(79, 209, 197, 0.85);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    /* PROGRESS + TRANSPORT */
+    .progress-wrap {
+      padding-top: 4px;
+    }
+
+    .progress-bar {
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(31, 41, 55, 0.95);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 40%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), #38bdf8);
+      transition: width 0.2s linear;
+    }
+
+    .progress-times {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .transport {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .t-left {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .t-center {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .t-right {
+      font-size: 14px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .t-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #020617;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .t-btn.main {
+      width: 48px;
+      height: 48px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 0, #fef9c3, #facc15, #f97316);
+      color: #020617;
+      border: none;
+      box-shadow:
+        0 0 20px rgba(250, 204, 21, 0.7),
+        0 14px 26px rgba(0, 0, 0, 0.85);
+    }
+
+    .t-btn:active {
+      transform: scale(0.95);
+      box-shadow: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="header">
+      <div class="brand">echoplayer</div>
+      <div class="session-tag">Swamp-Hop Session</div>
+    </div>
+
+    <div class="title-row">
+      <div class="track-main">
+        <div class="track-title" id="trackTitle">Moonball Descent</div>
+        <div class="track-sub" id="trackSub">Powder Peaks · EchoVerse</div>
+      </div>
+      <div class="tab-chips">
+        <div class="chip active" data-card="now">Now</div>
+        <div class="chip" data-card="queue">Queue</div>
+        <div class="chip" data-card="eq">EQ</div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="card-wrap">
+        <!-- NOW CARD -->
+        <div class="card active" id="card-now">
+          <div class="now-top">
+            <div class="thumb-art">
+              <div class="thumb-core">
+                CORE
+              </div>
+            </div>
+            <div class="now-meta">
+              <div class="now-line" id="nowLine">Moonball Descent · Powder Peaks</div>
+              <div class="now-label">Playing from Swamp-Hop Session · Track 3 of 12</div>
+            </div>
+          </div>
+          <div class="tags-row">
+            <div class="tag-pill">🎧 Focus</div>
+            <div class="tag-pill">🕳 Deep bass</div>
+            <div class="tag-pill">🌘 Moonball arc</div>
+          </div>
+        </div>
+
+        <!-- QUEUE CARD -->
+        <div class="card" id="card-queue">
+          <div style="font-size: 11px; color: var(--muted); margin-bottom: 4px;">
+            Up next · 2 tracks
+          </div>
+          <div class="queue-list" id="queueList">
+            <div class="queue-item current" data-title="Moonball Descent" data-sub="Powder Peaks · EchoVerse">
+              <div class="queue-text">
+                <div class="queue-title">Moonball Descent</div>
+                <div class="queue-sub">Now playing</div>
+              </div>
+              <div class="queue-time">3:59</div>
+            </div>
+            <div class="queue-item" data-title="Corner Pocket League Anthem" data-sub="EchoVerse · Draft">
+              <div class="queue-text">
+                <div class="queue-title">Corner Pocket League Anthem</div>
+                <div class="queue-sub">League Theme</div>
+              </div>
+              <div class="queue-time">4:20</div>
+            </div>
+            <div class="queue-item" data-title="EchoStory · Birthday Run" data-sub="Narrative · Soft mix">
+              <div class="queue-text">
+                <div class="queue-title">EchoStory · Birthday Run</div>
+                <div class="queue-sub">Story Mode</div>
+              </div>
+              <div class="queue-time">2:48</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EQ CARD -->
+        <div class="card" id="card-eq">
+          <div class="eq-header">
+            <span>EQ: Swamp-Hop curve</span>
+            <span id="eqPresetLabel">Preset · Swamp-Hop</span>
+          </div>
+          <div class="eq-bands">
+            <div class="eq-band">
+              <div class="eq-bar" style="height: 40px;">
+                <div class="eq-level" style="height: 75%;"></div>
+              </div>
+              <span>Low</span>
+            </div>
+            <div class="eq-band">
+              <div class="eq-bar" style="height: 46px;">
+                <div class="eq-level" style="height: 60%;"></div>
+              </div>
+              <span>Low-mid</span>
+            </div>
+            <div class="eq-band">
+              <div class="eq-bar" style="height: 52px;">
+                <div class="eq-level" style="height: 45%;"></div>
+              </div>
+              <span>High-mid</span>
+            </div>
+            <div class="eq-band">
+              <div class="eq-bar" style="height: 42px;">
+                <div class="eq-level" style="height: 50%;"></div>
+              </div>
+              <span>High</span>
+            </div>
+          </div>
+          <div class="eq-footer">
+            <span>Presets</span>
+            <div>
+              <span class="preset-pill active" data-preset="swamphop">Swamp-Hop</span>
+              <span class="preset-pill" data-preset="flat">Flat</span>
+              <span class="preset-pill" data-preset="vocal">Vocal</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROGRESS + TRANSPORT -->
+      <div>
+        <div class="progress-wrap">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-times">
+            <span id="timeStart">00:52</span>
+            <span id="timeEnd">-03:15</span>
+          </div>
+        </div>
+
+        <div class="transport">
+          <div class="t-left">
+            <span id="deviceLabel">🔊 Phone</span>
+          </div>
+          <div class="t-center">
+            <button class="t-btn" id="prevBtn" aria-label="Previous track">⏮</button>
+            <button class="t-btn main" id="playBtn" aria-label="Play / Pause">▶</button>
+            <button class="t-btn" id="nextBtn" aria-label="Next track">⏭</button>
+          </div>
+          <div class="t-right">
+            <span id="favBtn" title="Favorite">★</span>
+            <span id="moreBtn" title="More">⋮</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab switching
+    const chips = document.querySelectorAll(".chip");
+    const cards = {
+      now: document.getElementById("card-now"),
+      queue: document.getElementById("card-queue"),
+      eq: document.getElementById("card-eq"),
+    };
+
+    chips.forEach(chip => {
+      chip.addEventListener("click", () => {
+        const target = chip.getAttribute("data-card");
+        chips.forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+
+        Object.keys(cards).forEach(key => {
+          cards[key].classList.toggle("active", key === target);
+        });
+      });
+    });
+
+    // Fake play/pause & progress
+    const playBtn = document.getElementById("playBtn");
+    const progressFill = document.getElementById("progressFill");
+    let isPlaying = false;
+
+    playBtn.addEventListener("click", () => {
+      isPlaying = !isPlaying;
+      playBtn.textContent = isPlaying ? "⏸" : "▶";
+      playBtn.setAttribute("aria-label", isPlaying ? "Pause" : "Play");
+      progressFill.style.width = isPlaying ? "60%" : "40%";
+    });
+
+    // Queue click = change track labels
+    const queueList = document.getElementById("queueList");
+    const trackTitle = document.getElementById("trackTitle");
+    const trackSub = document.getElementById("trackSub");
+    const nowLine = document.getElementById("nowLine");
+
+    queueList.addEventListener("click", e => {
+      const item = e.target.closest(".queue-item");
+      if (!item) return;
+
+      document.querySelectorAll(".queue-item").forEach(el => el.classList.remove("current"));
+      item.classList.add("current");
+
+      const title = item.getAttribute("data-title");
+      const sub = item.getAttribute("data-sub");
+
+      trackTitle.textContent = title;
+      trackSub.textContent = sub;
+      nowLine.textContent = `${title} · ${sub}`;
+    });
+
+    // Preset selection visual
+    const presetPills = document.querySelectorAll(".preset-pill");
+    const eqPresetLabel = document.getElementById("eqPresetLabel");
+
+    presetPills.forEach(pill => {
+      pill.addEventListener("click", () => {
+        presetPills.forEach(p => p.classList.remove("active"));
+        pill.classList.add("active");
+
+        const preset = pill.getAttribute("data-preset");
+        if (preset === "swamphop") eqPresetLabel.textContent = "Preset · Swamp-Hop";
+        else if (preset === "flat") eqPresetLabel.textContent = "Preset · Flat";
+        else if (preset === "vocal") eqPresetLabel.textContent = "Preset · Vocal focus";
+      });
+    });
+
+    // Favorite toggle (simple)
+    const favBtn = document.getElementById("favBtn");
+    let isFav = false;
+
+    favBtn.addEventListener("click", () => {
+      isFav = !isFav;
+      favBtn.style.color = isFav ? "#facc15" : "inherit";
+      favBtn.title = isFav ? "Unfavorite" : "Favorite";
+    });
+  </script>
+</body>
+</html>

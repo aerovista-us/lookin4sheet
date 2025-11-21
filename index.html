@@ -4,6 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lookin' for Sh!t – BillyGoat</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="goat.t.png" />
+  <link rel="shortcut icon" type="image/png" href="goat.t.png" />
+  <link rel="apple-touch-icon" href="goat.t.png" />
+  
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#0b0b0c" />
+  <meta name="description" content="Lookin' for Sh!t - BillyGoat's Swamp-Hop / Glitch Bounce audio player" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Lookin' for Sh!t" />
+  
+  <!-- Manifest -->
+  <link rel="manifest" href="manifest.json" />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     
@@ -735,6 +750,23 @@
       height: 100%;
       object-fit: cover;
       display: block;
+      transition: opacity 0.15s ease, transform 0.15s ease, filter 0.15s ease;
+    }
+    
+    .player-art-section img.morphing {
+      transform: scale(1.03);
+      filter: brightness(1.1) saturate(1.2);
+    }
+    
+    .player-art-section video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 16px;
+      z-index: 2;
     }
     
     .player-title-section {
@@ -1415,7 +1447,7 @@
       <!-- Playlist Slideout -->
       <div class="playlist-slideout" id="playlistSlideout">
       <div class="playlist-slideout-header">
-        <h4 style="color: var(--primary-cyan); margin: 0; font-size: 1rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">🎵 Playlist — 8 Tracks</h4>
+        <h4 style="color: var(--primary-cyan); margin: 0; font-size: 1rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">🎵 Playlist — 11 Tracks</h4>
         <button class="settings-close" id="closePlaylist">×</button>
       </div>
       <div class="playlist-slideout-content">
@@ -1450,6 +1482,18 @@
           </div>
           <div class="playlist-item" data-track="7">
             <div class="playlist-item-title">Goddamn Connector</div>
+            <div class="playlist-item-subtitle">BillyGoat · Swamp-Hop / Glitch Bounce</div>
+          </div>
+          <div class="playlist-item" data-track="8">
+            <div class="playlist-item-title">Cast Crashers</div>
+            <div class="playlist-item-subtitle">BillyGoat · Swamp-Hop / Glitch Bounce</div>
+          </div>
+          <div class="playlist-item" data-track="9">
+            <div class="playlist-item-title">The One That Got Away</div>
+            <div class="playlist-item-subtitle">BillyGoat · Swamp-Hop / Glitch Bounce</div>
+          </div>
+          <div class="playlist-item" data-track="10">
+            <div class="playlist-item-title">What You Gonna Do</div>
             <div class="playlist-item-subtitle">BillyGoat · Swamp-Hop / Glitch Bounce</div>
           </div>
         </div>
@@ -1498,6 +1542,9 @@
           <!-- Album Art -->
           <div class="player-art-section" id="playerArtSection">
             <img src="goattinshit.png" alt="Now Playing" id="playerArt" />
+            <video id="easterEggVideo" preload="auto" style="display: none;">
+              <source src="gotego.mp4" type="video/mp4">
+            </video>
             <div class="clickable-shit" id="clickableShit1" style="top: 20%; left: 15%;"></div>
             <div class="clickable-shit" id="clickableShit2" style="top: 60%; right: 20%;"></div>
             <div class="clickable-shit" id="clickableShit3" style="bottom: 25%; left: 30%;"></div>
@@ -1549,6 +1596,18 @@
       </div>
 
     <audio id="audioPlayer" preload="metadata"></audio>
+    <audio id="goatAdlib" preload="auto" loop>
+      <source src="goat_adlib.mp3" type="audio/mpeg">
+      <!-- Fallback: user needs to add goat_adlib.mp3 file -->
+    </audio>
+    <audio id="clickSound" preload="auto">
+      <source src="click_sound.mp3" type="audio/mpeg">
+      <!-- Placeholder: user needs to add click_sound.mp3 file -->
+    </audio>
+    <audio id="easterEggSound" preload="auto">
+      <source src="easter_egg_sound.mp3" type="audio/mpeg">
+      <!-- Placeholder: user needs to add easter_egg_sound.mp3 file -->
+    </audio>
   </div>
 
   <!-- Game Overlay -->
@@ -1610,6 +1669,21 @@
         title: "Goddamn Connector",
         subtitle: "BillyGoat · Swamp-Hop / Glitch Bounce",
         file: "goddamn_connector.mp3"
+      },
+      {
+        title: "Cast Crashers",
+        subtitle: "BillyGoat · Swamp-Hop / Glitch Bounce",
+        file: "cast_crashers.mp3"
+      },
+      {
+        title: "The One That Got Away",
+        subtitle: "BillyGoat · Swamp-Hop / Glitch Bounce",
+        file: "the_one_that_got_away.mp3"
+      },
+      {
+        title: "What You Gonna Do",
+        subtitle: "BillyGoat · Swamp-Hop / Glitch Bounce",
+        file: "what_you_gonna_do.mp3"
       }
     ];
 
@@ -2174,12 +2248,141 @@
       crossfadeStatus.textContent = isCrossfading ? 'On' : 'Off';
     });
     
-    // Album art click to expand
+    // Album art interactive goat yell with easter egg
     const playerArtSection = document.getElementById('playerArtSection');
     const playerArt = document.getElementById('playerArt');
-    playerArtSection.addEventListener('click', () => {
-      // Could expand to full screen or show album art modal
-      // Visual feedback handled by CSS :active state
+    const goatAdlib = document.getElementById('goatAdlib');
+    const clickSound = document.getElementById('clickSound');
+    const easterEggSound = document.getElementById('easterEggSound');
+    const easterEggVideo = document.getElementById('easterEggVideo');
+    const originalImageSrc = 'goattinshit.png';
+    const yellImageSrc = 'goat.yell.png';
+    let isPressed = false;
+    let consecutivePressCount = 0;
+    let lastPressTime = 0;
+    const PRESS_TIMEOUT = 2000; // 2 seconds between presses to count as consecutive
+    const EASTER_EGG_TRIGGER = 5; // Number of consecutive presses needed
+    let easterEggActive = false;
+    
+    // Store original image source
+    let currentImageSrc = originalImageSrc;
+    
+    function playClickSound() {
+      if (clickSound) {
+        clickSound.currentTime = 0;
+        clickSound.play().catch(err => console.warn('Click sound play failed:', err));
+      }
+    }
+    
+    function triggerEasterEgg() {
+      if (easterEggActive) return;
+      
+      easterEggActive = true;
+      consecutivePressCount = 0;
+      
+      // Play easter egg sound
+      if (easterEggSound) {
+        easterEggSound.currentTime = 0;
+        easterEggSound.play().catch(err => console.warn('Easter egg sound play failed:', err));
+      }
+      
+      // Hide image and show video
+      playerArt.style.display = 'none';
+      easterEggVideo.style.display = 'block';
+      easterEggVideo.currentTime = 0;
+      easterEggVideo.play().catch(err => console.warn('Easter egg video play failed:', err));
+      
+      // Stop goat ad-lib if playing
+      if (goatAdlib) {
+        goatAdlib.pause();
+        goatAdlib.currentTime = 0;
+      }
+      
+      // When video ends, go back to normal
+      easterEggVideo.onended = () => {
+        easterEggVideo.style.display = 'none';
+        playerArt.style.display = 'block';
+        playerArt.src = originalImageSrc;
+        playerArt.classList.remove('morphing');
+        easterEggActive = false;
+        isPressed = false;
+      };
+    }
+    
+    function morphToYell() {
+      if (easterEggActive) return;
+      
+      const currentTime = Date.now();
+      
+      // Check if this is a consecutive press (within timeout window)
+      if (currentTime - lastPressTime < PRESS_TIMEOUT) {
+        consecutivePressCount++;
+      } else {
+        // Reset counter if too much time passed
+        consecutivePressCount = 1;
+      }
+      
+      lastPressTime = currentTime;
+      
+      // Check for easter egg trigger
+      if (consecutivePressCount >= EASTER_EGG_TRIGGER) {
+        triggerEasterEgg();
+        return;
+      }
+      
+      if (!isPressed) {
+        isPressed = true;
+        playerArt.src = yellImageSrc;
+        playerArt.classList.add('morphing');
+        playClickSound();
+        if (goatAdlib) {
+          goatAdlib.currentTime = 0;
+          goatAdlib.play().catch(err => console.warn('Goat ad-lib play failed:', err));
+        }
+      }
+    }
+    
+    function morphBack() {
+      if (easterEggActive) return;
+      
+      if (isPressed) {
+        isPressed = false;
+        playerArt.src = originalImageSrc;
+        playerArt.classList.remove('morphing');
+        if (goatAdlib) {
+          goatAdlib.pause();
+          goatAdlib.currentTime = 0;
+        }
+      }
+    }
+    
+    // Mouse events
+    playerArtSection.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      morphToYell();
+    });
+    
+    playerArtSection.addEventListener('mouseup', () => {
+      morphBack();
+    });
+    
+    playerArtSection.addEventListener('mouseleave', () => {
+      morphBack();
+    });
+    
+    // Touch events for mobile
+    playerArtSection.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      morphToYell();
+    });
+    
+    playerArtSection.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      morphBack();
+    });
+    
+    playerArtSection.addEventListener('touchcancel', () => {
+      morphBack();
     });
     
     // Load first track
@@ -2389,15 +2592,18 @@
     let clickCount = 0;
     const clickableShits = document.querySelectorAll('.clickable-shit');
     clickableShits.forEach((shit, index) => {
-      shit.addEventListener('click', () => {
+      shit.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent triggering the morph effect
         clickCount++;
         shit.style.display = 'none';
         createParticleExplosion(shit);
         
         // Glitch effect on album art
-        const albumArt = document.getElementById('albumArt');
-        albumArt.classList.add('glitch');
-        setTimeout(() => albumArt.classList.remove('glitch'), 300);
+        const albumArt = document.getElementById('playerArt');
+        if (albumArt) {
+          albumArt.classList.add('glitch');
+          setTimeout(() => albumArt.classList.remove('glitch'), 300);
+        }
         
         if (clickCount === 3) {
           setTimeout(() => {
